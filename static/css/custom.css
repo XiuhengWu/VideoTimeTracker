@@ -1,0 +1,489 @@
+/* Custom styles for video website */
+
+:root {
+    --bg-card-alt: var(--bs-gray-200);
+    --card-border-radius: 12px;
+    --container-max-width: 1400px;
+    --subtitle-font-size: 40px !important;
+}
+
+/* Modern container sizing */
+.container {
+    max-width: var(--container-max-width);
+}
+
+/* Modern card styling */
+.card {
+    border-radius: var(--card-border-radius);
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+/* Modern navbar */
+.navbar {
+    /* backdrop-filter: blur(10px); */
+    background-color: rgba(var(--bs-body-bg-rgb), 0.8);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 1rem 0;
+}
+
+/* Video grid improvements */
+.video-thumbnail {
+    height: 200px;
+    border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
+    overflow: hidden;
+    background: var(--bg-card-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Badge styling */
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 500;
+    border-radius: 50px;
+}
+
+/* Apply font size to video subtitles (Plyr) */
+.plyr__captions {
+    font-size: var(--subtitle-font-size) !important;
+}
+
+[data-bs-theme="dark"] {
+    --bg-card-alt: var(--bs-gray-800);
+}
+
+/* Basic theme styling */
+[data-bs-theme="light"] {
+    --bs-body-bg: #f8f9fa;
+    --bs-body-color: #212529;
+}
+
+[data-bs-theme="dark"] {
+    --bs-body-bg: #212529;
+    --bs-body-color: #f8f9fa;
+}
+
+/* Ensure proper theme coloring for navbar */
+.navbar {
+    background-color: var(--bs-body-bg);
+}
+
+/* Ensure proper contrast for cards and buttons */
+.card {
+    background-color: var(--bs-card-bg);
+    color: var(--bs-body-color);
+}
+
+/* Calendar view styling */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 15px;
+}
+
+.day-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.day {
+    min-height: 80px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 5px;
+    padding: 5px;
+    position: relative;
+}
+
+.day.empty {
+    background-color: var(--bg-card-alt);
+}
+
+.day.today {
+    border-color: var(--bs-primary);
+    border-width: 2px;
+}
+
+.date-number {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-weight: bold;
+}
+
+.usage-indicator {
+    width: 100%;
+    height: 5px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.usage-text {
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 8px;
+    left: 5px;
+}
+
+/* Video player container */
+.plyr-container {
+    position: relative;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Widescreen mode */
+.widescreen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bs-body-bg);
+    z-index: 9999;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.widescreen-mode #player {
+    flex-grow: 1;
+    width: 100%;
+    height: calc(100% - 50px);
+    max-height: none;
+}
+
+.widescreen-mode .widescreen-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.fullscreen-exit {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10000;
+}
+
+/* Timestamp display */
+#timestamp-display {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: var(--bg-card-alt);
+    border-radius: 5px;
+    font-size: 1.2rem;
+}
+
+/* Video thumbnails in list */
+.video-thumbnail {
+    height: 180px;
+    background-color: var(--bg-card-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: var(--bs-card-border-radius);
+    border-top-right-radius: var(--bs-card-border-radius);
+    overflow: hidden;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Navigation keys info */
+.nav-keys-info {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: var(--bg-card-alt);
+    border-radius: 5px;
+}
+
+.key {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: var(--bs-secondary-bg);
+    border-radius: 4px;
+    font-family: monospace;
+    margin: 0 5px;
+}
+
+/* Usage tracking indicator */
+#tracking-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+/* Usage tracking dot */
+.tracking-active {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--bs-success);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: blink 2s infinite;
+}
+
+.tracking-paused {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--bs-warning);
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* Statistics container */
+#usage-chart {
+    height: 400px;
+    margin-bottom: 30px;
+}
+
+/* File upload buttons */
+.upload-container {
+    margin-top: 15px;
+}
+
+/* Subtitle list styling */
+.subtitle-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+}
+
+.subtitle-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--bs-border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+}
+
+.subtitle-item:last-child {
+    border-bottom: none;
+}
+
+.subtitle-item:hover {
+    background-color: var(--bg-card-alt);
+}
+
+.subtitle-item.active {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    border-left: 3px solid var(--bs-primary);
+}
+
+.subtitle-time {
+    min-width: 90px;
+    font-family: monospace;
+    color: var(--bs-secondary-color);
+    margin-right: 10px;
+}
+
+.subtitle-text {
+    flex-grow: 1;
+    font-size: var(--subtitle-font-size);
+}
+
+/* Word explanation tooltip */
+.explainable {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: help;
+    position: relative;
+}
+
+.word-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 300px;
+    z-index: 100;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.explainable:hover .word-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Playlist styling */
+.compact-playlist {
+    height: calc(100vh - 400px);
+    min-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.playlist-item {
+    display: flex;
+    padding: 10px;
+    border-bottom: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.playlist-item:hover {
+    background-color: var(--bg-card-alt);
+}
+
+.playlist-item.active {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    border-left: 3px solid var(--bs-primary);
+}
+
+.playlist-thumbnail {
+    width: 60px;
+    height: 40px;
+    margin-right: 10px;
+    background-color: var(--bg-card-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.playlist-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.playlist-thumbnail i {
+    font-size: 24px;
+    color: var(--bs-secondary-color);
+}
+
+.playlist-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.playlist-title {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-badges .badge {
+    font-size: 0.7rem;
+}
+
+/* Timemarks styling */
+.timemarks-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.timemark-item {
+    display: flex;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--bs-border-color);
+    cursor: pointer;
+}
+
+.timemark-item:hover {
+    background-color: var(--bg-card-alt);
+}
+
+.timemark-time {
+    font-family: monospace;
+    margin-right: 10px;
+    font-size: 0.9rem;
+}
+
+.timemark-description {
+    flex-grow: 1;
+    font-size: 0.9rem;
+}
+
+.timemark-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.timemark-actions button {
+    border: none;
+    background: none;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.timemark-actions button:hover {
+    color: var(--bs-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 2px;
+    }
+    
+    .day {
+        min-height: 60px;
+    }
+    
+    .usage-text {
+        font-size: 0.7rem;
+    }
+    
+    .video-thumbnail {
+        height: 140px;
+    }
+    
+    .playlist-item {
+        padding: 8px 5px;
+    }
+    
+    .playlist-thumbnail {
+        width: 50px;
+        height: 35px;
+        margin-right: 5px;
+    }
+    
+    .playlist-title {
+        font-size: 0.8rem;
+    }
+}
