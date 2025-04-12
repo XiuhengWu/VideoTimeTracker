@@ -39,7 +39,7 @@
     backdrop-filter: blur(10px);
     background-color: rgba(var(--bs-body-bg-rgb), 0.7);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 0.5rem var(--content-spacing);
+    padding: 0.25rem var(--content-spacing);
     margin-bottom: var(--content-spacing);
 }
 
