@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         playerContainer.appendChild(blocker);
         
-        // Make draggable within video boundaries
+        // Make draggable
         let isDragging = false;
         let currentX;
         let currentY;
@@ -39,26 +39,15 @@ document.addEventListener('DOMContentLoaded', function() {
         blocker.addEventListener('mousedown', function(e) {
             if (!e.target.classList.contains('resize-handle')) {
                 isDragging = true;
-                const blockerRect = blocker.getBoundingClientRect();
-                currentX = e.clientX - blockerRect.left;
-                currentY = e.clientY - blockerRect.top;
+                currentX = e.clientX - blocker.offsetLeft;
+                currentY = e.clientY - blocker.offsetTop;
             }
         });
         
         document.addEventListener('mousemove', function(e) {
             if (isDragging) {
-                const videoRect = videoElement.getBoundingClientRect();
-                const blockerRect = blocker.getBoundingClientRect();
-                
-                let newLeft = e.clientX - currentX - videoRect.left;
-                let newTop = e.clientY - currentY - videoRect.top;
-                
-                // Begrenze die Position innerhalb des Videos
-                newLeft = Math.max(0, Math.min(newLeft, videoRect.width - blockerRect.width));
-                newTop = Math.max(0, Math.min(newTop, videoRect.height - blockerRect.height));
-                
-                blocker.style.left = `${newLeft}px`;
-                blocker.style.top = `${newTop}px`;
+                blocker.style.left = `${e.clientX - currentX}px`;
+                blocker.style.top = `${e.clientY - currentY}px`;
             }
         });
         
