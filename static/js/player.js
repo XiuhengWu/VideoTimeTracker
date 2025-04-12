@@ -1,46 +1,39 @@
 /**
  * Player module for handling video playback, subtitle navigation and timestamp marking
  */
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function() {
     // Subtitle blocker functionality
     const blockers = new Map();
     let blockerId = 0;
 
     function createBlocker() {
-        const playerContainer = document.querySelector(".plyr-container");
-        const videoElement = document.querySelector("video");
+        const playerContainer = document.querySelector('.plyr-container');
+        const videoElement = document.querySelector('video');
         const rect = videoElement.getBoundingClientRect();
 
         // Load last saved blocker settings
-        const savedSettings = JSON.parse(
-            localStorage.getItem("lastBlockerSettings") || "{}",
-        );
+        const savedSettings = JSON.parse(localStorage.getItem('lastBlockerSettings') || '{}');
 
         // Create blocker element
-        const blocker = document.createElement("div");
+        const blocker = document.createElement('div');
         const id = blockerId++;
         blocker.id = `blocker-${id}`;
-        blocker.className = "subtitle-blocker";
+        blocker.className = 'subtitle-blocker';
 
         // Use saved settings or defaults
         const defaultSettings = {
             relativeWidth: 30,
             relativeHeight: 10,
             relativeLeft: 50,
-            relativeTop: 80,
+            relativeTop: 80
         };
 
-        const settings = { ...defaultSettings, ...savedSettings };
+        const settings = {...defaultSettings, ...savedSettings};
 
         // Add resize handles
-        const positions = [
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-        ];
-        positions.forEach((pos) => {
-            const handle = document.createElement("div");
+        const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        positions.forEach(pos => {
+            const handle = document.createElement('div');
             handle.className = `resize-handle ${pos}`;
             blocker.appendChild(handle);
         });
@@ -73,8 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let currentX;
         let currentY;
 
-        blocker.addEventListener("mousedown", function (e) {
-            if (!e.target.classList.contains("resize-handle")) {
+        blocker.addEventListener('mousedown', function(e) {
+            if (!e.target.classList.contains('resize-handle')) {
                 isDragging = true;
                 const rect = blocker.getBoundingClientRect();
                 currentX = e.clientX - rect.left;
@@ -82,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        document.addEventListener("mousemove", function (e) {
+        document.addEventListener('mousemove', function(e) {
             if (isDragging) {
                 const playerRect = videoElement.getBoundingClientRect();
                 const newLeft = e.clientX - currentX - playerRect.left;
@@ -93,39 +86,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 relativeTop = (newTop / playerRect.height) * 100;
 
                 // Limit to player boundaries
-                relativeLeft = Math.max(
-                    0,
-                    Math.min(relativeLeft, 100 - relativeWidth),
-                );
-                relativeTop = Math.max(
-                    0,
-                    Math.min(relativeTop, 100 - relativeHeight),
-                );
+                relativeLeft = Math.max(0, Math.min(relativeLeft, 100 - relativeWidth));
+                relativeTop = Math.max(0, Math.min(relativeTop, 100 - relativeHeight));
 
                 updateBlockerPosition();
             }
         });
 
-        document.addEventListener("mouseup", function () {
+        document.addEventListener('mouseup', function() {
             isDragging = false;
             // Save current settings
-            localStorage.setItem(
-                "lastBlockerSettings",
-                JSON.stringify({
-                    relativeWidth,
-                    relativeHeight,
-                    relativeLeft,
-                    relativeTop,
-                }),
-            );
+            localStorage.setItem('lastBlockerSettings', JSON.stringify({
+                relativeWidth,
+                relativeHeight,
+                relativeLeft,
+                relativeTop
+            }));
         });
 
         // Make resizable
         let isResizing = false;
         let currentHandle = null;
 
-        blocker.querySelectorAll(".resize-handle").forEach((handle) => {
-            handle.addEventListener("mousedown", function (e) {
+        blocker.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', function(e) {
                 isResizing = true;
                 currentHandle = handle;
                 e.stopPropagation();
@@ -136,8 +120,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let initialMouseX = 0;
         let initialMouseY = 0;
 
-        blocker.querySelectorAll(".resize-handle").forEach((handle) => {
-            handle.addEventListener("mousedown", function (e) {
+        blocker.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', function(e) {
                 isResizing = true;
                 currentHandle = handle;
                 initialRect = blocker.getBoundingClientRect();
@@ -147,20 +131,17 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
-        document.addEventListener("mousemove", function (e) {
+        document.addEventListener('mousemove', function(e) {
             if (isResizing && currentHandle && initialRect) {
                 const deltaX = e.clientX - initialMouseX;
                 const deltaY = e.clientY - initialMouseY;
 
-                const isTop =
-                    currentHandle.classList.contains("top-left") ||
-                    currentHandle.classList.contains("top-right");
-                const isLeft =
-                    currentHandle.classList.contains("top-left") ||
-                    currentHandle.classList.contains("bottom-left");
+                const isTop = currentHandle.classList.contains('top-left') || 
+                            currentHandle.classList.contains('top-right');
+                const isLeft = currentHandle.classList.contains('top-left') || 
+                             currentHandle.classList.contains('bottom-left');
 
-                const playerContainer =
-                    document.querySelector(".plyr-container");
+                const playerContainer = document.querySelector('.plyr-container');
                 const containerRect = playerContainer.getBoundingClientRect();
 
                 let newWidth = initialRect.width;
@@ -174,75 +155,42 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Horizontale Anpassung
                 if (isLeft) {
                     const widthDelta = (deltaX / playerRect.width) * 100;
-                    relativeWidth = Math.max(
-                        5,
-                        (initialRect.width / playerRect.width) * 100 -
-                            widthDelta,
-                    );
-                    relativeLeft =
-                        ((initialRect.right - playerRect.left) /
-                            playerRect.width) *
-                            100 -
-                        relativeWidth;
+                    relativeWidth = Math.max(5, initialRect.width / playerRect.width * 100 - widthDelta);
+                    relativeLeft = (initialRect.right - playerRect.left) / playerRect.width * 100 - relativeWidth;
                 } else {
                     const widthDelta = (deltaX / playerRect.width) * 100;
-                    relativeWidth = Math.max(
-                        5,
-                        (initialRect.width / playerRect.width) * 100 +
-                            widthDelta,
-                    );
+                    relativeWidth = Math.max(5, initialRect.width / playerRect.width * 100 + widthDelta);
                 }
 
                 // Vertikale Anpassung
                 if (isTop) {
                     const heightDelta = (deltaY / playerRect.height) * 100;
-                    relativeHeight = Math.max(
-                        2,
-                        (initialRect.height / playerRect.height) * 100 -
-                            heightDelta,
-                    );
-                    relativeTop =
-                        ((initialRect.bottom - playerRect.top) /
-                            playerRect.height) *
-                            100 -
-                        relativeHeight;
+                    relativeHeight = Math.max(2, initialRect.height / playerRect.height * 100 - heightDelta);
+                    relativeTop = (initialRect.bottom - playerRect.top) / playerRect.height * 100 - relativeHeight;
                 } else {
                     const heightDelta = (deltaY / playerRect.height) * 100;
-                    relativeHeight = Math.max(
-                        2,
-                        (initialRect.height / playerRect.height) * 100 +
-                            heightDelta,
-                    );
+                    relativeHeight = Math.max(2, initialRect.height / playerRect.height * 100 + heightDelta);
                 }
 
                 // Begrenze die relative Position und Größe
-                relativeLeft = Math.max(
-                    0,
-                    Math.min(relativeLeft, 100 - relativeWidth),
-                );
-                relativeTop = Math.max(
-                    0,
-                    Math.min(relativeTop, 100 - relativeHeight),
-                );
+                relativeLeft = Math.max(0, Math.min(relativeLeft, 100 - relativeWidth));
+                relativeTop = Math.max(0, Math.min(relativeTop, 100 - relativeHeight));
 
                 // Aktualisiere die Position und Größe sofort
                 updateBlockerPosition();
             }
         });
 
-        document.addEventListener("mouseup", function () {
+        document.addEventListener('mouseup', function() {
             isResizing = false;
             currentHandle = null;
             // Save current settings
-            localStorage.setItem(
-                "lastBlockerSettings",
-                JSON.stringify({
-                    relativeWidth,
-                    relativeHeight,
-                    relativeLeft,
-                    relativeTop,
-                }),
-            );
+            localStorage.setItem('lastBlockerSettings', JSON.stringify({
+                relativeWidth,
+                relativeHeight,
+                relativeLeft,
+                relativeTop
+            }));
         });
 
         // Add to blockers map and list
@@ -253,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateBlockerList() {
-        const list = document.getElementById("blocker-list");
+        const list = document.getElementById('blocker-list');
         if (blockers.size === 0) {
             list.innerHTML = `
                 <div class="text-center py-3 text-muted">
@@ -263,9 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        list.innerHTML = Array.from(blockers.entries())
-            .map(
-                ([id, blocker]) => `
+        list.innerHTML = Array.from(blockers.entries()).map(([id, blocker]) => `
             <div class="blocker-list-item">
                 <span>Block #${id + 1}</span>
                 <div class="blocker-controls">
@@ -274,13 +220,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     </button>
                 </div>
             </div>
-        `,
-            )
-            .join("");
+        `).join('');
     }
 
     // Add global function to remove blockers
-    window.removeBlocker = function (id) {
+    window.removeBlocker = function(id) {
         const blocker = blockers.get(id);
         if (blocker) {
             blocker.remove();
@@ -290,45 +234,33 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Add blocker button click handler
-    const addBlockerBtn = document.getElementById("add-blocker");
+    const addBlockerBtn = document.getElementById('add-blocker');
     if (addBlockerBtn) {
-        addBlockerBtn.addEventListener("click", createBlocker);
+        addBlockerBtn.addEventListener('click', createBlocker);
     }
 
     // Initialize player
-    const videoElement = document.getElementById("player");
+    const videoElement = document.getElementById('player');
 
     if (!videoElement) return;
 
     // Get video information from data attributes
     const videoBasename = videoElement.dataset.basename;
-    const hasSubtitles = videoElement.dataset.subtitles === "true";
-    const hasThumbnails = videoElement.dataset.thumbnails === "true";
+    const hasSubtitles = videoElement.dataset.subtitles === 'true';
+    const hasThumbnails = videoElement.dataset.thumbnails === 'true';
 
     // Initialize Plyr without fullscreen controls
-    const player = new Plyr("#player", {
-        captions: { active: true, language: "auto", update: true },
+    const player = new Plyr('#player', {
+        captions: { active: true, language: 'auto', update: true },
         seekTime: 5,
-        previewThumbnails: hasThumbnails
-            ? { enabled: true, src: `/videos/${videoBasename}-thumbnails.vtt` }
-            : { enabled: false },
-        controls: [
-            "play-large",
-            "play",
-            "progress",
-            "current-time",
-            "mute",
-            "volume",
-            "captions",
-            "settings",
-            "pip",
-        ],
+        previewThumbnails: hasThumbnails ? { enabled: true, src: `/videos/${videoBasename}-thumbnails.vtt` } : { enabled: false },
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip']
     });
 
     // Update blockers on player resize
     const resizeObserver = new ResizeObserver(() => {
-        document.querySelectorAll(".subtitle-blocker").forEach((blocker) => {
-            if (typeof blocker.updateBlockerPosition === "function") {
+        document.querySelectorAll('.subtitle-blocker').forEach(blocker => {
+            if (typeof blocker.updateBlockerPosition === 'function') {
                 blocker.updateBlockerPosition();
             }
         });
@@ -337,71 +269,60 @@ document.addEventListener("DOMContentLoaded", function () {
     resizeObserver.observe(videoElement);
 
     // Custom fullscreen handling
-    const fullscreenContainer = document.getElementById("fullscreen-container");
-    const customFullscreenBtn = document.getElementById("custom-fullscreen");
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    const customFullscreenBtn = document.getElementById('custom-fullscreen');
 
     if (customFullscreenBtn) {
-        customFullscreenBtn.addEventListener("click", function () {
+        customFullscreenBtn.addEventListener('click', function() {
             if (!document.fullscreenElement) {
                 fullscreenContainer.requestFullscreen();
-                customFullscreenBtn.innerHTML =
-                    '<i class="material-icons align-middle">fullscreen_exit</i> Normal';
+                customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen_exit</i> Normal';
             } else {
                 document.exitFullscreen();
-                customFullscreenBtn.innerHTML =
-                    '<i class="material-icons align-middle">fullscreen</i> Vollbild';
+                customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen</i> Vollbild';
             }
         });
     }
 
-    document.addEventListener("fullscreenchange", function () {
+    document.addEventListener('fullscreenchange', function() {
         if (!document.fullscreenElement && customFullscreenBtn) {
-            customFullscreenBtn.innerHTML =
-                '<i class="material-icons align-middle">fullscreen</i> Vollbild';
+            customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen</i> Vollbild';
         }
     });
 
     // Wait for player to be ready before setting up keyboard navigation
-    player.on("ready", () => {
+    player.on('ready', () => {
         // Keyboard navigation
-        document.addEventListener("keydown", function (e) {
+        document.addEventListener('keydown', function(e) {
             if (!player || !player.ready) return;
 
-            const track =
-                videoElement.textTracks && videoElement.textTracks.length > 0
-                    ? videoElement.textTracks[0]
-                    : null;
+            const track = videoElement.textTracks && videoElement.textTracks.length > 0 ? 
+                         videoElement.textTracks[0] : null;
 
             if (track) {
                 // A key - previous subtitle or restart current
-                if (e.key === "a" || e.key === "A") {
+                if (e.key === 'a' || e.key === 'A') {
                     e.preventDefault();
                     let activeCue = null;
                     let previousCue = null;
 
                     for (let i = 0; i < track.cues.length; i++) {
                         const cue = track.cues[i];
-                        if (
-                            player.currentTime >= cue.startTime &&
-                            player.currentTime <= cue.endTime
-                        ) {
+                        if (player.currentTime >= cue.startTime && player.currentTime <= cue.endTime) {
                             activeCue = cue;
                             previousCue = i > 0 ? track.cues[i - 1] : null;
                             break;
                         }
                     }
 
-                    if (
-                        activeCue &&
-                        player.currentTime >= activeCue.startTime + 1
-                    ) {
+                    if (activeCue && player.currentTime >= activeCue.startTime + 1) {
                         player.currentTime = activeCue.startTime;
                     } else if (previousCue) {
                         player.currentTime = previousCue.startTime;
                     }
-                }
+                } 
                 // D key - next subtitle
-                else if (e.key === "d" || e.key === "D") {
+                else if (e.key === 'd' || e.key === 'D') {
                     e.preventDefault();
                     for (let i = 0; i < track.cues.length; i++) {
                         if (player.currentTime < track.cues[i].startTime) {
@@ -415,38 +336,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Widescreen mode implementation
-    const toggleWidescreenBtn = document.getElementById("toggle-widescreen");
-    const playerContainer = document.querySelector(".plyr-container");
+    const toggleWidescreenBtn = document.getElementById('toggle-widescreen');
+    const playerContainer = document.querySelector('.plyr-container');
     let isWidescreenMode = false;
 
     if (toggleWidescreenBtn && playerContainer) {
-        toggleWidescreenBtn.addEventListener("click", function () {
+        toggleWidescreenBtn.addEventListener('click', function() {
             isWidescreenMode = !isWidescreenMode;
 
             if (isWidescreenMode) {
                 // Enter widescreen mode
-                playerContainer.classList.add("widescreen-mode");
-                toggleWidescreenBtn.innerHTML =
-                    '<i class="material-icons align-middle">fullscreen_exit</i> Normalmodus';
-                toggleWidescreenBtn.classList.add(
-                    "btn-danger",
-                    "fullscreen-exit",
-                );
-                toggleWidescreenBtn.classList.remove("btn-outline-primary");
+                playerContainer.classList.add('widescreen-mode');
+                toggleWidescreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen_exit</i> Normalmodus';
+                toggleWidescreenBtn.classList.add('btn-danger', 'fullscreen-exit');
+                toggleWidescreenBtn.classList.remove('btn-outline-primary');
 
                 // Refit the player to new container
                 player.fullscreen.enter();
                 setTimeout(() => player.fullscreen.exit(), 50);
             } else {
                 // Exit widescreen mode
-                playerContainer.classList.remove("widescreen-mode");
-                toggleWidescreenBtn.innerHTML =
-                    '<i class="material-icons align-middle">aspect_ratio</i> Breitbildmodus';
-                toggleWidescreenBtn.classList.remove(
-                    "btn-danger",
-                    "fullscreen-exit",
-                );
-                toggleWidescreenBtn.classList.add("btn-outline-primary");
+                playerContainer.classList.remove('widescreen-mode');
+                toggleWidescreenBtn.innerHTML = '<i class="material-icons align-middle">aspect_ratio</i> Breitbildmodus';
+                toggleWidescreenBtn.classList.remove('btn-danger', 'fullscreen-exit');
+                toggleWidescreenBtn.classList.add('btn-outline-primary');
 
                 // Refit the player to original container
                 setTimeout(() => player.reenter(), 50);
@@ -454,8 +367,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Also handle ESC key to exit widescreen mode
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape" && isWidescreenMode) {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isWidescreenMode) {
                 toggleWidescreenBtn.click();
             }
         });
@@ -464,56 +377,51 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize subtitle tracks if available
     if (hasSubtitles) {
         // Track is added via HTML
-        const track = document.querySelector("track");
+        const track = document.querySelector('track');
         if (track) {
             // Enable subtitles by default
-            track.mode = "showing";
+            track.mode = 'showing';
         }
     }
 
     // Subtitle Font Size Control
-    const subtitleFontSizeSelect =
-        document.getElementById("subtitle-font-size");
+    const subtitleFontSizeSelect = document.getElementById('subtitle-font-size');
     if (subtitleFontSizeSelect) {
         // Load saved font size preference
-        const savedFontSize = localStorage.getItem("subtitle-font-size");
+        const savedFontSize = localStorage.getItem('subtitle-font-size');
         if (savedFontSize) {
             subtitleFontSizeSelect.value = savedFontSize;
             // Apply font size immediately to video player subtitles
-            const playerSubtitles = document.querySelector(".plyr__captions");
+            const playerSubtitles = document.querySelector('.plyr__captions');
             if (playerSubtitles) {
                 playerSubtitles.style.fontSize = `${savedFontSize}px`;
             }
         } else {
             // Set default font size
-            const playerSubtitles = document.querySelector(".plyr__captions");
+            const playerSubtitles = document.querySelector('.plyr__captions');
             if (playerSubtitles) {
-                playerSubtitles.style.fontSize = "16px";
+                playerSubtitles.style.fontSize = '16px';
             }
         }
 
         // Change font size when select changes
-        subtitleFontSizeSelect.addEventListener("change", function () {
+        subtitleFontSizeSelect.addEventListener('change', function() {
             const fontSize = this.value;
-            const playerSubtitles = document.querySelector(".plyr__captions");
-            console.log(playerSubtitles);
-            console.log(this.value);
+            const playerSubtitles = document.querySelector('.plyr__captions');
             if (playerSubtitles) {
                 playerSubtitles.style.fontSize = `${fontSize}px`;
             }
-            localStorage.setItem("subtitle-font-size", fontSize);
+            localStorage.setItem('subtitle-font-size', fontSize);
         });
     }
 
     // Timemarks functionality
     let markedTime = null;
-    const timestampDisplay = document.getElementById("timestamp-display");
-    const markButton = document.getElementById("mark-timestamp");
-    const clearTimemarksBtn = document.getElementById("clear-timemarks");
-    const timemarksList = document.getElementById("timemarks-list");
-    let timemarks = JSON.parse(
-        localStorage.getItem(`timemarks-${videoBasename}`) || "[]",
-    );
+    const timestampDisplay = document.getElementById('timestamp-display');
+    const markButton = document.getElementById('mark-timestamp');
+    const clearTimemarksBtn = document.getElementById('clear-timemarks');
+    const timemarksList = document.getElementById('timemarks-list');
+    let timemarks = JSON.parse(localStorage.getItem(`timemarks-${videoBasename}`) || '[]');
 
     // Initialize timemarks list
     if (timemarksList) {
@@ -521,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (markButton) {
-        markButton.addEventListener("click", function () {
+        markButton.addEventListener('click', function() {
             markedTime = player.currentTime;
             updateTimestampDisplay();
 
@@ -532,26 +440,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (clearTimemarksBtn) {
-        clearTimemarksBtn.addEventListener("click", function () {
-            if (
-                confirm("Möchten Sie alle Zeitmarken für dieses Video löschen?")
-            ) {
+        clearTimemarksBtn.addEventListener('click', function() {
+            if (confirm('Möchten Sie alle Zeitmarken für dieses Video löschen?')) {
                 timemarks = [];
-                localStorage.setItem(
-                    `timemarks-${videoBasename}`,
-                    JSON.stringify(timemarks),
-                );
+                localStorage.setItem(`timemarks-${videoBasename}`, JSON.stringify(timemarks));
                 renderTimemarks();
             }
         });
     }
 
     // Add timemark to the list
-    function addTimemark(time, description = "") {
+    function addTimemark(time, description = '') {
         const timemark = {
             time: time,
             description: description || `Zeitmarke ${timemarks.length + 1}`,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
         };
 
         timemarks.push(timemark);
@@ -560,10 +463,7 @@ document.addEventListener("DOMContentLoaded", function () {
         timemarks.sort((a, b) => a.time - b.time);
 
         // Save to localStorage
-        localStorage.setItem(
-            `timemarks-${videoBasename}`,
-            JSON.stringify(timemarks),
-        );
+        localStorage.setItem(`timemarks-${videoBasename}`, JSON.stringify(timemarks));
 
         // Update UI
         renderTimemarks();
@@ -574,18 +474,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!timemarksList) return;
 
         if (timemarks.length === 0) {
-            timemarksList.innerHTML =
-                '<div class="text-center py-3 text-muted">Keine Zeitmarken gesetzt</div>';
+            timemarksList.innerHTML = '<div class="text-center py-3 text-muted">Keine Zeitmarken gesetzt</div>';
             return;
         }
 
-        let html = "";
+        let html = '';
 
         timemarks.forEach((timemark, index) => {
             // Format time as MM:SS
             const minutes = Math.floor(timemark.time / 60);
             const seconds = Math.floor(timemark.time % 60);
-            const formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+            const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
             html += `
                 <div class="timemark-item" data-index="${index}">
@@ -602,13 +501,10 @@ document.addEventListener("DOMContentLoaded", function () {
         timemarksList.innerHTML = html;
 
         // Add click event to jump to timemark
-        const items = timemarksList.querySelectorAll(".timemark-item");
-        items.forEach((item) => {
-            item.addEventListener("click", function (e) {
-                if (
-                    e.target.closest(".edit-timemark") ||
-                    e.target.closest(".delete-timemark")
-                ) {
+        const items = timemarksList.querySelectorAll('.timemark-item');
+        items.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (e.target.closest('.edit-timemark') || e.target.closest('.delete-timemark')) {
                     return; // Let the edit/delete button handle their own events
                 }
 
@@ -619,22 +515,16 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             // Edit timemark
-            const editBtn = item.querySelector(".edit-timemark");
+            const editBtn = item.querySelector('.edit-timemark');
             if (editBtn) {
-                editBtn.addEventListener("click", function (e) {
+                editBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const index = parseInt(item.dataset.index);
                     if (index >= 0 && index < timemarks.length) {
-                        const newDesc = prompt(
-                            "Beschreibung bearbeiten:",
-                            timemarks[index].description,
-                        );
+                        const newDesc = prompt('Beschreibung bearbeiten:', timemarks[index].description);
                         if (newDesc !== null) {
                             timemarks[index].description = newDesc;
-                            localStorage.setItem(
-                                `timemarks-${videoBasename}`,
-                                JSON.stringify(timemarks),
-                            );
+                            localStorage.setItem(`timemarks-${videoBasename}`, JSON.stringify(timemarks));
                             renderTimemarks();
                         }
                     }
@@ -642,18 +532,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             // Delete timemark
-            const deleteBtn = item.querySelector(".delete-timemark");
+            const deleteBtn = item.querySelector('.delete-timemark');
             if (deleteBtn) {
-                deleteBtn.addEventListener("click", function (e) {
+                deleteBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const index = parseInt(item.dataset.index);
                     if (index >= 0 && index < timemarks.length) {
-                        timemarks.splice(index, 1);
-                        localStorage.setItem(
-                            `timemarks-${videoBasename}`,
-                            JSON.stringify(timemarks),
-                        );
-                        renderTimemarks();
+                            timemarks.splice(index, 1);
+                            localStorage.setItem(`timemarks-${videoBasename}`, JSON.stringify(timemarks));
+                            renderTimemarks();
                     }
                 });
             }
@@ -669,25 +556,23 @@ document.addEventListener("DOMContentLoaded", function () {
             const minutes = Math.floor(difference / 60);
             const seconds = Math.floor(difference % 60);
 
-            timestampDisplay.textContent = `Zeitdifferenz: ${minutes}:${seconds.toString().padStart(2, "0")}`;
-            timestampDisplay.classList.remove("d-none");
+            timestampDisplay.textContent = `Zeitdifferenz: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            timestampDisplay.classList.remove('d-none');
         }
     }
 
     // Handle keyboard navigation for subtitles
-    document.addEventListener("keydown", function (e) {
+    document.addEventListener('keydown', function(e) {
         // Only process if player exists and is loaded
         if (!player || !player.ready) return;
 
         // Get subtitle tracks
-        const track =
-            videoElement.textTracks && videoElement.textTracks.length > 0
-                ? videoElement.textTracks[0]
-                : null;
+        const track = videoElement.textTracks && videoElement.textTracks.length > 0 ? 
+                     videoElement.textTracks[0] : null;
 
         if (track) {
             // A key - previous subtitle or restart current
-            if (e.key === "a" || e.key === "A") {
+            if (e.key === 'a' || e.key === 'A') {
                 e.preventDefault();
 
                 // Get active cue
@@ -697,10 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Find active and previous cues
                 for (let i = 0; i < track.cues.length; i++) {
                     const cue = track.cues[i];
-                    if (
-                        player.currentTime >= cue.startTime &&
-                        player.currentTime <= cue.endTime
-                    ) {
+                    if (player.currentTime >= cue.startTime && player.currentTime <= cue.endTime) {
                         activeCue = cue;
                         previousCue = i > 0 ? track.cues[i - 1] : null;
                         break;
@@ -719,19 +601,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 // Logic for jumping
-                if (
-                    activeCue &&
-                    player.currentTime >= activeCue.startTime + 1
-                ) {
+                if (activeCue && player.currentTime >= activeCue.startTime + 1) {
                     // If more than 1 second into current cue, jump to start of current cue
                     player.currentTime = activeCue.startTime;
                 } else if (previousCue) {
                     // Jump to previous cue
                     player.currentTime = previousCue.startTime;
                 }
-            }
+            } 
             // Q key - next subtitle
-            else if (e.key === "d" || e.key === "D") {
+            else if (e.key === 'd' || e.key === 'D') {
                 e.preventDefault();
 
                 // Find next cue
@@ -746,23 +625,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Update timestamp display when playing
-    player.on("timeupdate", function () {
+    player.on('timeupdate', function() {
         if (markedTime !== null) {
             updateTimestampDisplay();
         }
     });
 
     // Subtitle list functionality
-    const toggleSubtitlesBtn = document.getElementById("toggle-subtitles-list");
-    const closeSubtitlesBtn = document.getElementById("close-subtitles");
-    const subtitlesContainer = document.getElementById("subtitles-container");
-    const subtitleList = document.getElementById("subtitle-list");
-    const translateCurrentBtn = document.getElementById("translate-current");
-    const revertTranslationBtn = document.getElementById("revert-translation");
-    const subtitleLanguageControls = document.querySelector(
-        ".subtitle-language-controls",
-    );
-    const subtitleLanguageSelect = document.getElementById("subtitle-language");
+    const toggleSubtitlesBtn = document.getElementById('toggle-subtitles-list');
+    const closeSubtitlesBtn = document.getElementById('close-subtitles');
+    const subtitlesContainer = document.getElementById('subtitles-container');
+    const subtitleList = document.getElementById('subtitle-list');
+    const translateCurrentBtn = document.getElementById('translate-current');
+    const revertTranslationBtn = document.getElementById('revert-translation');
+    const subtitleLanguageControls = document.querySelector('.subtitle-language-controls');
+    const subtitleLanguageSelect = document.getElementById('subtitle-language');
     let subtitles = [];
     let currentSubtitleIndex = -1;
     let translatedSubtitles = null;
@@ -770,23 +647,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load saved target language preference
     if (subtitleLanguageSelect) {
-        const savedLanguage = localStorage.getItem(
-            "translation-target-language",
-        );
+        const savedLanguage = localStorage.getItem('translation-target-language');
         if (savedLanguage) {
             subtitleLanguageSelect.value = savedLanguage;
         }
 
         // Save language preference when changed
-        subtitleLanguageSelect.addEventListener("change", function () {
-            localStorage.setItem("translation-target-language", this.value);
+        subtitleLanguageSelect.addEventListener('change', function() {
+            localStorage.setItem('translation-target-language', this.value);
         });
     }
 
     if (toggleSubtitlesBtn && subtitlesContainer && hasSubtitles) {
         // Load subtitles when button is clicked
-        toggleSubtitlesBtn.addEventListener("click", function () {
-            subtitlesContainer.classList.remove("d-none");
+        toggleSubtitlesBtn.addEventListener('click', function() {
+            subtitlesContainer.classList.remove('d-none');
 
             // Load subtitles if not already loaded
             if (subtitles.length === 0) {
@@ -796,16 +671,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Close subtitle list
         if (closeSubtitlesBtn) {
-            closeSubtitlesBtn.addEventListener("click", function () {
-                subtitlesContainer.classList.add("d-none");
+            closeSubtitlesBtn.addEventListener('click', function() {
+                subtitlesContainer.classList.add('d-none');
             });
         }
 
         // Show translation controls and translate current subtitle
         if (translateCurrentBtn && subtitleLanguageControls) {
-            translateCurrentBtn.addEventListener("click", function () {
-                if (subtitleLanguageControls.style.display === "none") {
-                    subtitleLanguageControls.style.display = "block";
+            translateCurrentBtn.addEventListener('click', function() {
+                if (subtitleLanguageControls.style.display === 'none') {
+                    subtitleLanguageControls.style.display = 'block';
                 } else {
                     // Perform translation on current subtitle only
                     translateCurrentSubtitle();
@@ -815,7 +690,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Revert to original
         if (revertTranslationBtn) {
-            revertTranslationBtn.addEventListener("click", function () {
+            revertTranslationBtn.addEventListener('click', function() {
                 revertToOriginal();
             });
         }
@@ -824,34 +699,31 @@ document.addEventListener("DOMContentLoaded", function () {
     // Load subtitles from server
     function loadSubtitles() {
         fetch(`/api/get_subtitles/${videoBasename}`)
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     subtitles = data.subtitles;
                     renderSubtitleList(subtitles);
 
                     // Listen for timeupdate to highlight current subtitle
-                    player.on("timeupdate", highlightCurrentSubtitle);
+                    player.on('timeupdate', highlightCurrentSubtitle);
                 } else {
                     subtitleList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 subtitleList.innerHTML = `<div class="alert alert-danger">Fehler beim Laden der Untertitel: ${error}</div>`;
             });
     }
 
     // Convert VTT time format to seconds
     function timeToSeconds(time) {
-        const parts = time.split(":");
+        const parts = time.split(':');
         let seconds = 0;
 
         if (parts.length === 3) {
             // Hours:Minutes:Seconds.Milliseconds
-            seconds =
-                parseFloat(parts[0]) * 3600 +
-                parseFloat(parts[1]) * 60 +
-                parseFloat(parts[2]);
+            seconds = parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
         } else if (parts.length === 2) {
             // Minutes:Seconds.Milliseconds
             seconds = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
@@ -881,30 +753,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // Update highlight only if changed
         if (foundIndex !== currentSubtitleIndex) {
             // Remove active class from previous subtitle
-            const items = document.querySelectorAll(".subtitle-item");
-            items.forEach((item) => item.classList.remove("active"));
+            const items = document.querySelectorAll('.subtitle-item');
+            items.forEach(item => item.classList.remove('active'));
 
             // Add active class to current subtitle
             if (foundIndex >= 0) {
-                const activeItem = document.getElementById(
-                    `subtitle-${foundIndex}`,
-                );
+                const activeItem = document.getElementById(`subtitle-${foundIndex}`);
                 if (activeItem) {
-                    activeItem.classList.add("active");
+                    activeItem.classList.add('active');
 
                     // Scroll into view if needed
                     const container = activeItem.parentElement;
                     const containerRect = container.getBoundingClientRect();
                     const itemRect = activeItem.getBoundingClientRect();
 
-                    if (
-                        itemRect.bottom > containerRect.bottom ||
-                        itemRect.top < containerRect.top
-                    ) {
-                        activeItem.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center",
-                        });
+                    if (itemRect.bottom > containerRect.bottom || itemRect.top < containerRect.top) {
+                        activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
             }
@@ -918,17 +782,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!subtitleList) return;
 
         if (subtitleData.length === 0) {
-            subtitleList.innerHTML =
-                '<div class="text-center py-3">Keine Untertitel gefunden</div>';
+            subtitleList.innerHTML = '<div class="text-center py-3">Keine Untertitel gefunden</div>';
             return;
         }
 
-        let html = "";
+        let html = '';
 
         subtitleData.forEach((subtitle, index) => {
             html += `
                 <div id="subtitle-${index}" class="subtitle-item" data-index="${index}">
-                    <div class="subtitle-time">${subtitle.start.split(".")[0]}</div>
+                    <div class="subtitle-time">${subtitle.start.split('.')[0]}</div>
                     <div class="subtitle-text">${processText(subtitle.text)}</div>
                 </div>
             `;
@@ -937,9 +800,9 @@ document.addEventListener("DOMContentLoaded", function () {
         subtitleList.innerHTML = html;
 
         // Add click event to jump to subtitle
-        const items = document.querySelectorAll(".subtitle-item");
-        items.forEach((item) => {
-            item.addEventListener("click", function () {
+        const items = document.querySelectorAll('.subtitle-item');
+        items.forEach(item => {
+            item.addEventListener('click', function() {
                 const index = parseInt(this.dataset.index);
                 if (index >= 0 && index < subtitles.length) {
                     const startTime = timeToSeconds(subtitles[index].start);
@@ -959,12 +822,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!text || translatedSubtitles) return text;
 
         // Split text into words, preserve punctuation
-        return text.replace(/(\b[A-Za-zÄäÖöÜüß]+\b)/g, function (match) {
+        return text.replace(/(\b[A-Za-zÄäÖöÜüß]+\b)/g, function(match) {
             // Only process German nouns (capitalized) and other words over 3 letters
-            if (
-                (match[0] === match[0].toUpperCase() && match.length > 2) ||
-                match.length > 3
-            ) {
+            if ((match[0] === match[0].toUpperCase() && match.length > 2) || match.length > 3) {
                 return `<span class="explainable" data-word="${match}">${match}</span>`;
             }
             return match;
@@ -973,10 +833,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add click events for word explanations
     function addWordExplanationEvents() {
-        const explainableWords = document.querySelectorAll(".explainable");
+        const explainableWords = document.querySelectorAll('.explainable');
 
-        explainableWords.forEach((word) => {
-            word.addEventListener("click", function (e) {
+        explainableWords.forEach(word => {
+            word.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -984,15 +844,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!wordText) return;
 
                 // Check if tooltip already exists
-                if (this.querySelector(".word-tooltip")) {
+                if (this.querySelector('.word-tooltip')) {
                     return;
                 }
 
                 // Create tooltip
-                const tooltip = document.createElement("div");
-                tooltip.className = "word-tooltip";
-                tooltip.innerHTML =
-                    '<div class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Lade...</div>';
+                const tooltip = document.createElement('div');
+                tooltip.className = 'word-tooltip';
+                tooltip.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Lade...</div>';
 
                 this.appendChild(tooltip);
 
@@ -1005,8 +864,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Fetch word explanation from Duden
     function fetchWordExplanation(word, tooltipElement) {
         fetch(`/api/explain_word?word=${encodeURIComponent(word)}`)
-            .then((response) => response.json())
-            .then((data) => {
+            .then(response => response.json())
+            .then(data => {
                 if (data.success) {
                     const explanation = data.explanation;
                     let html = `<h6>${explanation.word}</h6>`;
@@ -1022,15 +881,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     html += `<p>${explanation.meaning}</p>`;
 
                     if (explanation.synonyms && explanation.synonyms.length) {
-                        html += `<p><strong>Synonyme:</strong> ${explanation.synonyms.join(", ")}</p>`;
+                        html += `<p><strong>Synonyme:</strong> ${explanation.synonyms.join(', ')}</p>`;
                     }
 
                     tooltipElement.innerHTML = html;
                 } else {
-                    tooltipElement.innerHTML = `<div class="text-danger">${data.error || "Wort nicht gefunden"}</div>`;
+                    tooltipElement.innerHTML = `<div class="text-danger">${data.error || 'Wort nicht gefunden'}</div>`;
                 }
             })
-            .catch((error) => {
+            .catch(error => {
                 tooltipElement.innerHTML = `<div class="text-danger">Fehler: ${error}</div>`;
             });
     }
@@ -1043,13 +902,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!targetLang) return;
 
         // Get current subtitle element
-        const currentSubtitleElement = document.getElementById(
-            `subtitle-${currentSubtitleIndex}`,
-        );
+        const currentSubtitleElement = document.getElementById(`subtitle-${currentSubtitleIndex}`);
         if (!currentSubtitleElement) return;
 
-        const subtitleTextElement =
-            currentSubtitleElement.querySelector(".subtitle-text");
+        const subtitleTextElement = currentSubtitleElement.querySelector('.subtitle-text');
         if (!subtitleTextElement) return;
 
         // Store original text if not already stored
@@ -1066,44 +922,41 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
 
         // Translate the current subtitle
-        fetch("/api/translate", {
-            method: "POST",
+        fetch('/api/translate', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 text: subtitles[currentSubtitleIndex].text,
-                target_language: targetLang,
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    // Update UI with translated text
-                    subtitleTextElement.textContent = data.translated_text;
-
-                    // Show revert button
-                    revertTranslationBtn.classList.remove("d-none");
-                } else {
-                    subtitleTextElement.innerHTML = `<div class="text-danger">Übersetzungsfehler: ${data.error}</div>`;
-                }
+                target_language: targetLang
             })
-            .catch((error) => {
-                subtitleTextElement.innerHTML = `<div class="text-danger">Übersetzungsfehler: ${error}</div>`;
-            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI with translated text
+                subtitleTextElement.textContent = data.translated_text;
+
+                // Show revert button
+                revertTranslationBtn.classList.remove('d-none');
+            } else {
+                subtitleTextElement.innerHTML = `<div class="text-danger">Übersetzungsfehler: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            subtitleTextElement.innerHTML = `<div class="text-danger">Übersetzungsfehler: ${error}</div>`;
+        });
     }
 
     // Revert to original subtitle text
     function revertToOriginal() {
         if (currentSubtitleIndex === -1 || !originalSubtitleText) return;
 
-        const currentSubtitleElement = document.getElementById(
-            `subtitle-${currentSubtitleIndex}`,
-        );
+        const currentSubtitleElement = document.getElementById(`subtitle-${currentSubtitleIndex}`);
         if (!currentSubtitleElement) return;
 
-        const subtitleTextElement =
-            currentSubtitleElement.querySelector(".subtitle-text");
+        const subtitleTextElement = currentSubtitleElement.querySelector('.subtitle-text');
         if (!subtitleTextElement) return;
 
         // Restore original text with explanation functionality
@@ -1113,7 +966,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addWordExplanationEvents();
 
         // Hide revert button
-        revertTranslationBtn.classList.add("d-none");
+        revertTranslationBtn.classList.add('d-none');
 
         // Clear stored original
         originalSubtitleText = null;
@@ -1137,7 +990,7 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
 
         // Collect all subtitle texts
-        const textsToTranslate = subtitles.map((sub) => sub.text);
+        const textsToTranslate = subtitles.map(sub => sub.text);
 
         // Translate in chunks to avoid API limits
         const chunkSize = 10;
@@ -1155,7 +1008,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (let i = 0; i < translatedSubtitles.length; i++) {
                     translatedSubtitles[i] = {
                         ...translatedSubtitles[i],
-                        text: translatedChunks[i],
+                        text: translatedChunks[i]
                     };
                 }
 
@@ -1165,21 +1018,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             try {
                 // Translate this chunk
-                const promises = chunk.map((text) =>
-                    fetch("/api/translate", {
-                        method: "POST",
+                const promises = chunk.map(text => 
+                    fetch('/api/translate', {
+                        method: 'POST',
                         headers: {
-                            "Content-Type": "application/json",
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             text: text,
-                            target_language: targetLang,
-                        }),
+                            target_language: targetLang
+                        })
                     })
-                        .then((response) => response.json())
-                        .then((data) =>
-                            data.success ? data.translated_text : text,
-                        ),
+                    .then(response => response.json())
+                    .then(data => data.success ? data.translated_text : text)
                 );
 
                 const results = await Promise.all(promises);
@@ -1187,6 +1038,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Translate next chunk
                 translateChunk(chunkIndex + 1);
+
             } catch (error) {
                 subtitleList.innerHTML = `<div class="alert alert-danger">Übersetzungsfehler: ${error}</div>`;
             }
@@ -1197,45 +1049,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Handle file upload for subtitles/thumbnails
-    const subtitleUpload = document.getElementById("subtitle-upload");
-    const thumbnailUpload = document.getElementById("thumbnail-upload");
-    const fileUploadStatus = document.getElementById("file-upload-status");
+    const subtitleUpload = document.getElementById('subtitle-upload');
+    const thumbnailUpload = document.getElementById('thumbnail-upload');
+    const fileUploadStatus = document.getElementById('file-upload-status');
 
     function uploadFile(fileInput, fileType) {
         const file = fileInput.files[0];
         if (!file) return;
 
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append('file', file);
 
         fetch(`/upload/${videoBasename}/${fileType}`, {
-            method: "POST",
-            body: formData,
+            method: 'POST',
+            body: formData
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    fileUploadStatus.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                    // Reload page to refresh player with new files
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    fileUploadStatus.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
-                }
-            })
-            .catch((error) => {
-                fileUploadStatus.innerHTML = `<div class="alert alert-danger">Upload failed: ${error}</div>`;
-            });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fileUploadStatus.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                // Reload page to refresh player with new files
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                fileUploadStatus.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            fileUploadStatus.innerHTML = `<div class="alert alert-danger">Upload failed: ${error}</div>`;
+        });
     }
 
     if (subtitleUpload) {
-        subtitleUpload.addEventListener("change", function () {
-            uploadFile(this, "subtitles");
+        subtitleUpload.addEventListener('change', function() {
+            uploadFile(this, 'subtitles');
         });
     }
 
     if (thumbnailUpload) {
-        thumbnailUpload.addEventListener("change", function () {
-            uploadFile(this, "thumbnails");
+        thumbnailUpload.addEventListener('change', function() {
+            uploadFile(this, 'thumbnails');
         });
     }
 });
