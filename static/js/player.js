@@ -11,15 +11,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoElement = document.querySelector('video');
         const rect = videoElement.getBoundingClientRect();
         
+        // Load last saved blocker settings
+        const savedSettings = JSON.parse(localStorage.getItem('lastBlockerSettings') || '{}');
+        
         // Create blocker element
         const blocker = document.createElement('div');
         const id = blockerId++;
         blocker.id = `blocker-${id}`;
         blocker.className = 'subtitle-blocker';
-        blocker.style.width = '300px';
-        blocker.style.height = '50px';
-        blocker.style.left = '50%';
-        blocker.style.top = '80%';
+        
+        // Use saved settings or defaults
+        const defaultSettings = {
+            relativeWidth: 30,
+            relativeHeight: 10,
+            relativeLeft: 50,
+            relativeTop: 80
+        };
+        
+        const settings = {...defaultSettings, ...savedSettings};
         
         // Add resize handles
         const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
@@ -32,10 +41,10 @@ document.addEventListener('DOMContentLoaded', function() {
         playerContainer.appendChild(blocker);
         
         // Store relative positions as percentages
-        let relativeLeft = 50; // Default position at 50%
-        let relativeTop = 80;  // Default position at 80%
-        let relativeWidth = 30; // Default width 30% of player width
-        let relativeHeight = 10; // Default height 10% of player height
+        let relativeLeft = settings.relativeLeft;
+        let relativeTop = settings.relativeTop;
+        let relativeWidth = settings.relativeWidth;
+        let relativeHeight = settings.relativeHeight;
         
         // Function to update blocker position and size based on player dimensions
         function updateBlockerPosition() {
@@ -86,6 +95,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.addEventListener('mouseup', function() {
             isDragging = false;
+            // Save current settings
+            localStorage.setItem('lastBlockerSettings', JSON.stringify({
+                relativeWidth,
+                relativeHeight,
+                relativeLeft,
+                relativeTop
+            }));
         });
         
         // Make resizable
@@ -168,6 +184,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('mouseup', function() {
             isResizing = false;
             currentHandle = null;
+            // Save current settings
+            localStorage.setItem('lastBlockerSettings', JSON.stringify({
+                relativeWidth,
+                relativeHeight,
+                relativeLeft,
+                relativeTop
+            }));
         });
         
         // Add to blockers map and list
