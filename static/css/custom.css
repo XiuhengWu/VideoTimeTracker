@@ -176,6 +176,24 @@
     transition: all 0.3s ease;
 }
 
+/* Fullscreen container styles */
+.plyr-container:fullscreen {
+    background: black;
+    padding: 20px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.plyr-container:fullscreen video {
+    max-height: calc(100vh - 100px);
+}
+
+#custom-fullscreen {
+    z-index: 1000;
+}
+
 /* Widescreen mode */
 .widescreen-mode {
     position: fixed;

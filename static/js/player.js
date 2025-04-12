@@ -188,11 +188,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const hasSubtitles = videoElement.dataset.subtitles === 'true';
     const hasThumbnails = videoElement.dataset.thumbnails === 'true';
     
-    // Initialize Plyr
+    // Initialize Plyr without fullscreen controls
     const player = new Plyr('#player', {
         captions: { active: true, language: 'auto', update: true },
         seekTime: 5,
-        previewThumbnails: hasThumbnails ? { enabled: true, src: `/videos/${videoBasename}-thumbnails.vtt` } : { enabled: false }
+        previewThumbnails: hasThumbnails ? { enabled: true, src: `/videos/${videoBasename}-thumbnails.vtt` } : { enabled: false },
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip']
+    });
+
+    // Custom fullscreen handling
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    const customFullscreenBtn = document.getElementById('custom-fullscreen');
+
+    if (customFullscreenBtn) {
+        customFullscreenBtn.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                fullscreenContainer.requestFullscreen();
+                customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen_exit</i> Normal';
+            } else {
+                document.exitFullscreen();
+                customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen</i> Vollbild';
+            }
+        });
+    }
+
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement && customFullscreenBtn) {
+            customFullscreenBtn.innerHTML = '<i class="material-icons align-middle">fullscreen</i> Vollbild';
+        }
     });
 
     // Wait for player to be ready before setting up keyboard navigation
