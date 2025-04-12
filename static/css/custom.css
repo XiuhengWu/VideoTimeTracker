@@ -397,9 +397,15 @@
 
 /* Playlist styling */
 .compact-playlist {
+    min-height: 100px;
     max-height: calc(100vh - 400px);
+    height: auto;
     overflow-y: auto;
     scrollbar-width: thin;
+}
+
+.card.h-100 {
+    height: auto !important;
 }
 
 .playlist-item {
