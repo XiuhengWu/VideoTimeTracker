@@ -156,14 +156,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     relativeHeight = Math.max(2, initialRect.height / playerRect.height * 100 + heightDelta);
                 }
                 
-                // Begrenze die Position innerhalb des Containers
-                newLeft = Math.max(0, Math.min(newLeft, containerRect.width - newWidth));
-                newTop = Math.max(0, Math.min(newTop, containerRect.height - newHeight));
+                // Begrenze die relative Position und Größe
+                relativeLeft = Math.max(0, Math.min(relativeLeft, 100 - relativeWidth));
+                relativeTop = Math.max(0, Math.min(relativeTop, 100 - relativeHeight));
                 
-                blocker.style.width = `${newWidth}px`;
-                blocker.style.height = `${newHeight}px`;
-                blocker.style.left = `${newLeft}px`;
-                blocker.style.top = `${newTop}px`;
+                // Aktualisiere die Position und Größe sofort
+                updateBlockerPosition();
             }
         });
         
