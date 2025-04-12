@@ -4,7 +4,6 @@
     --bg-card-alt: var(--bs-gray-200);
     --card-border-radius: 16px;
     --container-max-width: 1400px;
-    --subtitle-font-size: 40px !important;
     --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     --transition-speed: 0.3s;
     --content-spacing: 2rem;
@@ -81,11 +80,6 @@
     padding: 0.5em 1em;
     font-weight: 500;
     border-radius: 50px;
-}
-
-/* Apply font size to video subtitles (Plyr) */
-.plyr__captions {
-    font-size: var(--subtitle-font-size) !important;
 }
 
 [data-bs-theme="dark"] {
