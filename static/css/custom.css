@@ -503,11 +503,22 @@
 
 /* Ensure blockers are visible in fullscreen */
 .plyr--fullscreen .plyr-container {
-    position: static;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.plyr--fullscreen video {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .plyr--fullscreen .subtitle-blocker {
     z-index: 1001;
+}
+
+.plyr--fullscreen {
+    position: relative !important;
 }
 
 .subtitle-blocker .resize-handle {
