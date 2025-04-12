@@ -31,6 +31,27 @@ document.addEventListener('DOMContentLoaded', function() {
         
         playerContainer.appendChild(blocker);
         
+        // Store relative positions as percentages
+        let relativeLeft = 50; // Default position at 50%
+        let relativeTop = 80;  // Default position at 80%
+        let relativeWidth = 30; // Default width 30% of player width
+        let relativeHeight = 10; // Default height 10% of player height
+        
+        // Function to update blocker position and size based on player dimensions
+        function updateBlockerPosition() {
+            const playerRect = videoElement.getBoundingClientRect();
+            const playerWidth = playerRect.width;
+            const playerHeight = playerRect.height;
+            
+            blocker.style.width = `${relativeWidth}%`;
+            blocker.style.height = `${relativeHeight}%`;
+            blocker.style.left = `${relativeLeft}%`;
+            blocker.style.top = `${relativeTop}%`;
+        }
+        
+        // Initial position
+        updateBlockerPosition();
+        
         // Make draggable
         let isDragging = false;
         let currentX;
@@ -39,15 +60,27 @@ document.addEventListener('DOMContentLoaded', function() {
         blocker.addEventListener('mousedown', function(e) {
             if (!e.target.classList.contains('resize-handle')) {
                 isDragging = true;
-                currentX = e.clientX - blocker.offsetLeft;
-                currentY = e.clientY - blocker.offsetTop;
+                const rect = blocker.getBoundingClientRect();
+                currentX = e.clientX - rect.left;
+                currentY = e.clientY - rect.top;
             }
         });
         
         document.addEventListener('mousemove', function(e) {
             if (isDragging) {
-                blocker.style.left = `${e.clientX - currentX}px`;
-                blocker.style.top = `${e.clientY - currentY}px`;
+                const playerRect = videoElement.getBoundingClientRect();
+                const newLeft = e.clientX - currentX - playerRect.left;
+                const newTop = e.clientY - currentY - playerRect.top;
+                
+                // Convert to percentages
+                relativeLeft = (newLeft / playerRect.width) * 100;
+                relativeTop = (newTop / playerRect.height) * 100;
+                
+                // Limit to player boundaries
+                relativeLeft = Math.max(0, Math.min(relativeLeft, 100 - relativeWidth));
+                relativeTop = Math.max(0, Math.min(relativeTop, 100 - relativeHeight));
+                
+                updateBlockerPosition();
             }
         });
         
@@ -100,20 +133,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 let newLeft = initialRect.left - containerRect.left;
                 let newTop = initialRect.top - containerRect.top;
                 
+                // Calculate changes in percentage
+                const playerRect = videoElement.getBoundingClientRect();
+                
                 // Horizontale Anpassung
                 if (isLeft) {
-                    newWidth = Math.max(50, initialRect.width - deltaX);
-                    newLeft = (initialRect.right - containerRect.left) - newWidth;
+                    const widthDelta = (deltaX / playerRect.width) * 100;
+                    relativeWidth = Math.max(5, initialRect.width / playerRect.width * 100 - widthDelta);
+                    relativeLeft = (initialRect.right - playerRect.left) / playerRect.width * 100 - relativeWidth;
                 } else {
-                    newWidth = Math.max(50, initialRect.width + deltaX);
+                    const widthDelta = (deltaX / playerRect.width) * 100;
+                    relativeWidth = Math.max(5, initialRect.width / playerRect.width * 100 + widthDelta);
                 }
                 
                 // Vertikale Anpassung
                 if (isTop) {
-                    newHeight = Math.max(20, initialRect.height - deltaY);
-                    newTop = (initialRect.bottom - containerRect.top) - newHeight;
+                    const heightDelta = (deltaY / playerRect.height) * 100;
+                    relativeHeight = Math.max(2, initialRect.height / playerRect.height * 100 - heightDelta);
+                    relativeTop = (initialRect.bottom - playerRect.top) / playerRect.height * 100 - relativeHeight;
                 } else {
-                    newHeight = Math.max(20, initialRect.height + deltaY);
+                    const heightDelta = (deltaY / playerRect.height) * 100;
+                    relativeHeight = Math.max(2, initialRect.height / playerRect.height * 100 + heightDelta);
                 }
                 
                 // Begrenze die Position innerhalb des Containers
@@ -196,6 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
         controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip']
     });
 
+    // Update blockers on player resize
+    const resizeObserver = new ResizeObserver(() => {
+        document.querySelectorAll('.subtitle-blocker').forEach(blocker => {
+            if (typeof blocker.updateBlockerPosition === 'function') {
+                blocker.updateBlockerPosition();
+            }
+        });
+    });
+    
+    resizeObserver.observe(videoElement);
+    
     // Custom fullscreen handling
     const fullscreenContainer = document.getElementById('fullscreen-container');
     const customFullscreenBtn = document.getElementById('custom-fullscreen');
