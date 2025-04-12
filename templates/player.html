@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ video.name }} - Video Player</title>
-    
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    
+
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <!-- Plyr CSS -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 </head>
@@ -61,19 +61,19 @@
 
     <!-- Tracking indicator -->
     <div id="tracking-indicator"></div>
-    
+
     <div class="container mt-5">
         <div class="row mb-3">
             <div class="col-md-8">
                 <h1>{{ video.name }}</h1>
             </div>
         </div>
-        
+
         <!-- Timestamp display -->
         <div id="timestamp-display" class="d-none mb-3">
             Zeitdifferenz: 0:00
         </div>
-        
+
         <div class="row">
             <div class="col-md-9">
                 <div class="plyr-container">
@@ -94,29 +94,29 @@
                            data-thumbnails="{{ 'true' if video.has_thumbnails else 'false' }}"
                            controls playsinline>
                         <source src="/videos/{{ video.name }}" type="video/mp4" />
-                        
+
                         {% if video.has_subtitles %}
                         <track kind="captions" label="Untertitel" src="/videos/{{ video.basename }}-subtitles.vtt" default />
                         {% endif %}
                     </video>
                 </div>
-                
+
                 <div class="d-flex justify-content-between mb-4">
                     <a href="{{ url_for('index') }}" class="btn btn-secondary">
                         <i class="material-icons align-middle">arrow_back</i> Zurück zur Liste
                     </a>
-                    
+
                     <div>
                         <button id="mark-timestamp" class="btn btn-primary me-2">
                             <i class="material-icons align-middle">bookmark</i> Zeitmarke setzen
                         </button>
-                        
+
                         <button id="toggle-subtitles-list" class="btn btn-info">
                             <i class="material-icons align-middle">subtitles</i> Untertitel anzeigen
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Subtitles list section -->
                 <div id="subtitles-container" class="card mb-4 d-none">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -163,7 +163,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Keyboard navigation info -->
                 <div class="nav-keys-info mb-4">
                     <h5>Tastaturnavigation</h5>
@@ -172,7 +172,24 @@
                         <span class="key">D</span> Nächster Untertitel
                     </p>
                 </div>
-                
+
+                <!-- Subtitle blocker controls -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Untertitel ausblenden</h5>
+                        <button id="add-blocker" class="btn btn-primary btn-sm">
+                            <i class="material-icons align-middle">add</i> Neuer Block
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="blocker-list" class="blocker-list">
+                            <div class="text-center py-3 text-muted">
+                                Keine Blöcke vorhanden
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- File upload section -->
                 {% if not video.has_subtitles or not video.has_thumbnails %}
                 <div class="upload-container card mb-4">
@@ -181,7 +198,7 @@
                     </div>
                     <div class="card-body">
                         <div id="file-upload-status"></div>
-                        
+
                         {% if not video.has_subtitles %}
                         <div class="mb-3">
                             <label for="subtitle-upload" class="form-label">Untertitel hochladen (.vtt)</label>
@@ -189,7 +206,7 @@
                             <div class="form-text">Die Datei wird als "{{ video.basename }}-subtitles.vtt" gespeichert</div>
                         </div>
                         {% endif %}
-                        
+
                         {% if not video.has_thumbnails %}
                         <div class="mb-3">
                             <label for="thumbnail-upload" class="form-label">Vorschaubilder hochladen (.vtt)</label>
@@ -201,7 +218,7 @@
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Playlist sidebar -->
             <div class="col-md-3">
                 <div class="card h-100 mb-4">
@@ -232,7 +249,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Timemarks section directly in player -->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -250,19 +267,19 @@
             </div>
         </div>
     </div>
-    
+
     <footer class="mt-5 py-3">
         <div class="container text-center">
             <p class="text-muted mb-0">Videobibliothek mit Nutzungsverfolgung</p>
         </div>
     </footer>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Plyr JS -->
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-    
+
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>
     <script src="{{ url_for('static', filename='js/usage_tracker.js') }}"></script>

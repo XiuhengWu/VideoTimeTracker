@@ -481,6 +481,46 @@
     color: var(--bs-primary);
 }
 
+/* Subtitle blocker styles */
+.subtitle-blocker {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: move;
+    z-index: 1000;
+}
+
+.subtitle-blocker .resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+}
+
+.subtitle-blocker .resize-handle.top-left { top: -5px; left: -5px; cursor: nw-resize; }
+.subtitle-blocker .resize-handle.top-right { top: -5px; right: -5px; cursor: ne-resize; }
+.subtitle-blocker .resize-handle.bottom-left { bottom: -5px; left: -5px; cursor: sw-resize; }
+.subtitle-blocker .resize-handle.bottom-right { bottom: -5px; right: -5px; cursor: se-resize; }
+
+.blocker-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.blocker-list-item:last-child {
+    border-bottom: none;
+}
+
+.blocker-controls {
+    display: flex;
+    gap: 5px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .calendar-grid {

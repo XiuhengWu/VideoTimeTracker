@@ -2,6 +2,158 @@
  * Player module for handling video playback, subtitle navigation and timestamp marking
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Subtitle blocker functionality
+    const blockers = new Map();
+    let blockerId = 0;
+    
+    function createBlocker() {
+        const playerContainer = document.querySelector('.plyr-container');
+        const videoElement = document.querySelector('video');
+        const rect = videoElement.getBoundingClientRect();
+        
+        // Create blocker element
+        const blocker = document.createElement('div');
+        const id = blockerId++;
+        blocker.id = `blocker-${id}`;
+        blocker.className = 'subtitle-blocker';
+        blocker.style.width = '300px';
+        blocker.style.height = '50px';
+        blocker.style.left = '50%';
+        blocker.style.top = '80%';
+        
+        // Add resize handles
+        const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        positions.forEach(pos => {
+            const handle = document.createElement('div');
+            handle.className = `resize-handle ${pos}`;
+            blocker.appendChild(handle);
+        });
+        
+        playerContainer.appendChild(blocker);
+        
+        // Make draggable
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        
+        blocker.addEventListener('mousedown', function(e) {
+            if (!e.target.classList.contains('resize-handle')) {
+                isDragging = true;
+                currentX = e.clientX - blocker.offsetLeft;
+                currentY = e.clientY - blocker.offsetTop;
+            }
+        });
+        
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                blocker.style.left = `${e.clientX - currentX}px`;
+                blocker.style.top = `${e.clientY - currentY}px`;
+            }
+        });
+        
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+        });
+        
+        // Make resizable
+        let isResizing = false;
+        let currentHandle = null;
+        
+        blocker.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                currentHandle = handle;
+                e.stopPropagation();
+            });
+        });
+        
+        document.addEventListener('mousemove', function(e) {
+            if (isResizing && currentHandle) {
+                const rect = blocker.getBoundingClientRect();
+                const isTop = currentHandle.classList.contains('top-left') || 
+                            currentHandle.classList.contains('top-right');
+                const isLeft = currentHandle.classList.contains('top-left') || 
+                             currentHandle.classList.contains('bottom-left');
+                
+                if (isLeft) {
+                    const newWidth = rect.right - e.clientX;
+                    if (newWidth > 50) {
+                        blocker.style.width = `${newWidth}px`;
+                        blocker.style.left = `${e.clientX}px`;
+                    }
+                } else {
+                    const newWidth = e.clientX - rect.left;
+                    if (newWidth > 50) {
+                        blocker.style.width = `${newWidth}px`;
+                    }
+                }
+                
+                if (isTop) {
+                    const newHeight = rect.bottom - e.clientY;
+                    if (newHeight > 20) {
+                        blocker.style.height = `${newHeight}px`;
+                        blocker.style.top = `${e.clientY}px`;
+                    }
+                } else {
+                    const newHeight = e.clientY - rect.top;
+                    if (newHeight > 20) {
+                        blocker.style.height = `${newHeight}px`;
+                    }
+                }
+            }
+        });
+        
+        document.addEventListener('mouseup', function() {
+            isResizing = false;
+            currentHandle = null;
+        });
+        
+        // Add to blockers map and list
+        blockers.set(id, blocker);
+        updateBlockerList();
+        
+        return id;
+    }
+    
+    function updateBlockerList() {
+        const list = document.getElementById('blocker-list');
+        if (blockers.size === 0) {
+            list.innerHTML = `
+                <div class="text-center py-3 text-muted">
+                    Keine Blöcke vorhanden
+                </div>
+            `;
+            return;
+        }
+        
+        list.innerHTML = Array.from(blockers.entries()).map(([id, blocker]) => `
+            <div class="blocker-list-item">
+                <span>Block #${id + 1}</span>
+                <div class="blocker-controls">
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeBlocker(${id})">
+                        <i class="material-icons">delete</i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Add global function to remove blockers
+    window.removeBlocker = function(id) {
+        const blocker = blockers.get(id);
+        if (blocker) {
+            blocker.remove();
+            blockers.delete(id);
+            updateBlockerList();
+        }
+    };
+    
+    // Add blocker button click handler
+    const addBlockerBtn = document.getElementById('add-blocker');
+    if (addBlockerBtn) {
+        addBlockerBtn.addEventListener('click', createBlocker);
+    }
+    
     // Initialize player
     const videoElement = document.getElementById('player');
     
