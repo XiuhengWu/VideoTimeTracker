@@ -67,39 +67,56 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
+        let initialRect = null;
+        let initialMouseX = 0;
+        let initialMouseY = 0;
+
+        blocker.querySelectorAll('.resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                currentHandle = handle;
+                initialRect = blocker.getBoundingClientRect();
+                initialMouseX = e.clientX;
+                initialMouseY = e.clientY;
+                e.stopPropagation();
+            });
+        });
+
         document.addEventListener('mousemove', function(e) {
-            if (isResizing && currentHandle) {
-                const rect = blocker.getBoundingClientRect();
+            if (isResizing && currentHandle && initialRect) {
+                const deltaX = e.clientX - initialMouseX;
+                const deltaY = e.clientY - initialMouseY;
+                
                 const isTop = currentHandle.classList.contains('top-left') || 
                             currentHandle.classList.contains('top-right');
                 const isLeft = currentHandle.classList.contains('top-left') || 
                              currentHandle.classList.contains('bottom-left');
                 
+                let newWidth = initialRect.width;
+                let newHeight = initialRect.height;
+                let newLeft = initialRect.left;
+                let newTop = initialRect.top;
+                
+                // Horizontale Anpassung
                 if (isLeft) {
-                    const newWidth = rect.right - e.clientX;
-                    if (newWidth > 50) {
-                        blocker.style.width = `${newWidth}px`;
-                        blocker.style.left = `${e.clientX}px`;
-                    }
+                    newWidth = Math.max(50, initialRect.width - deltaX);
+                    newLeft = initialRect.right - newWidth;
                 } else {
-                    const newWidth = e.clientX - rect.left;
-                    if (newWidth > 50) {
-                        blocker.style.width = `${newWidth}px`;
-                    }
+                    newWidth = Math.max(50, initialRect.width + deltaX);
                 }
                 
+                // Vertikale Anpassung
                 if (isTop) {
-                    const newHeight = rect.bottom - e.clientY;
-                    if (newHeight > 20) {
-                        blocker.style.height = `${newHeight}px`;
-                        blocker.style.top = `${e.clientY}px`;
-                    }
+                    newHeight = Math.max(20, initialRect.height - deltaY);
+                    newTop = initialRect.bottom - newHeight;
                 } else {
-                    const newHeight = e.clientY - rect.top;
-                    if (newHeight > 20) {
-                        blocker.style.height = `${newHeight}px`;
-                    }
+                    newHeight = Math.max(20, initialRect.height + deltaY);
                 }
+                
+                blocker.style.width = `${newWidth}px`;
+                blocker.style.height = `${newHeight}px`;
+                blocker.style.left = `${newLeft}px`;
+                blocker.style.top = `${newTop}px`;
             }
         });
         
