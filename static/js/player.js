@@ -92,15 +92,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isLeft = currentHandle.classList.contains('top-left') || 
                              currentHandle.classList.contains('bottom-left');
                 
+                const playerContainer = document.querySelector('.plyr-container');
+                const containerRect = playerContainer.getBoundingClientRect();
+                
                 let newWidth = initialRect.width;
                 let newHeight = initialRect.height;
-                let newLeft = initialRect.left;
-                let newTop = initialRect.top;
+                let newLeft = initialRect.left - containerRect.left;
+                let newTop = initialRect.top - containerRect.top;
                 
                 // Horizontale Anpassung
                 if (isLeft) {
                     newWidth = Math.max(50, initialRect.width - deltaX);
-                    newLeft = initialRect.right - newWidth;
+                    newLeft = (initialRect.right - containerRect.left) - newWidth;
                 } else {
                     newWidth = Math.max(50, initialRect.width + deltaX);
                 }
@@ -108,10 +111,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Vertikale Anpassung
                 if (isTop) {
                     newHeight = Math.max(20, initialRect.height - deltaY);
-                    newTop = initialRect.bottom - newHeight;
+                    newTop = (initialRect.bottom - containerRect.top) - newHeight;
                 } else {
                     newHeight = Math.max(20, initialRect.height + deltaY);
                 }
+                
+                // Begrenze die Position innerhalb des Containers
+                newLeft = Math.max(0, Math.min(newLeft, containerRect.width - newWidth));
+                newTop = Math.max(0, Math.min(newTop, containerRect.height - newHeight));
                 
                 blocker.style.width = `${newWidth}px`;
                 blocker.style.height = `${newHeight}px`;
