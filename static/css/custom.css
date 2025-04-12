@@ -498,6 +498,23 @@
     z-index: 1000;
 }
 
+/* Ensure blockers are visible in fullscreen */
+:fullscreen .subtitle-blocker {
+    z-index: 2147483647;
+}
+
+:-webkit-full-screen .subtitle-blocker {
+    z-index: 2147483647;
+}
+
+:-moz-full-screen .subtitle-blocker {
+    z-index: 2147483647;
+}
+
+:-ms-fullscreen .subtitle-blocker {
+    z-index: 2147483647;
+}
+
 .subtitle-blocker .resize-handle {
     position: absolute;
     width: 10px;
