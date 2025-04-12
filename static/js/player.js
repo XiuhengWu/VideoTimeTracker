@@ -39,9 +39,10 @@ document.addEventListener('DOMContentLoaded', function() {
         blocker.addEventListener('mousedown', function(e) {
             if (!e.target.classList.contains('resize-handle')) {
                 isDragging = true;
+                const videoRect = videoElement.getBoundingClientRect();
                 const blockerRect = blocker.getBoundingClientRect();
-                currentX = e.clientX - blockerRect.left;
-                currentY = e.clientY - blockerRect.top;
+                currentX = e.clientX - blockerRect.left + videoRect.left;
+                currentY = e.clientY - blockerRect.top + videoRect.top;
             }
         });
         
@@ -50,8 +51,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const videoRect = videoElement.getBoundingClientRect();
                 const blockerRect = blocker.getBoundingClientRect();
                 
-                let newLeft = e.clientX - currentX - videoRect.left;
-                let newTop = e.clientY - currentY - videoRect.top;
+                let newLeft = e.clientX - currentX;
+                let newTop = e.clientY - currentY;
                 
                 // Begrenze die Position innerhalb des Videos
                 newLeft = Math.max(0, Math.min(newLeft, videoRect.width - blockerRect.width));

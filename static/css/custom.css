@@ -501,6 +501,15 @@
     z-index: 1;
 }
 
+/* Ensure blockers are visible in fullscreen */
+.plyr--fullscreen .plyr-container {
+    position: static;
+}
+
+.plyr--fullscreen .subtitle-blocker {
+    z-index: 1001;
+}
+
 .subtitle-blocker .resize-handle {
     position: absolute;
     width: 10px;
