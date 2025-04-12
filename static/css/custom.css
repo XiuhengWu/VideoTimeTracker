@@ -8,12 +8,6 @@
     --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     --transition-speed: 0.3s;
     --content-spacing: 2rem;
-    --md-primary: #6200EE; /* Example Material You primary color */
-    --md-on-primary: white; /* Example Material You on-primary color */
-    --md-primary-container: #EDE7F6; /* Example Material You primary-container color */
-    --md-on-primary-container: #21005D; /* Example Material You on-primary-container color */
-
-
 }
 
 /* Modern container sizing */
@@ -624,27 +618,4 @@
     .playlist-title {
         font-size: 0.8rem;
     }
-}
-
-/* Material You button styles */
-.btn-primary {
-    background-color: var(--md-primary);
-    border-color: var(--md-primary);
-    color: var(--md-on-primary);
-}
-
-.btn-primary:hover {
-    background-color: var(--md-primary);
-    filter: brightness(1.1);
-}
-
-.btn-outline-primary {
-    color: var(--md-primary);
-    border-color: var(--md-primary);
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--md-primary-container);
-    color: var(--md-on-primary-container);
-    border-color: var(--md-primary);
 }
