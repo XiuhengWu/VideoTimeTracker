@@ -1,290 +1,459 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de" data-bs-theme="{{ session.get('theme', 'dark') }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ video.name }} - Video Player</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ video.name }} - Video Player</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <!-- Bootstrap CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        />
 
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!-- Material Icons -->
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
 
-    <!-- Plyr CSS -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+        <!-- Plyr CSS -->
+        <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="material-icons align-middle">video_library</i>
-                Videobibliothek
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-3">
-                    <li class="nav-item">
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted me-2">Heutige Nutzung:</span>
-                            <span id="today-counter" class="badge bg-primary">00:00:00</span>
-                            <button id="toggle-tracking" class="btn btn-warning btn-sm mt-2" style="margin-left: 10px">Tracking pausieren</button>
-                        </div>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="material-icons align-middle">home</i> Start
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('statistics') }}">
-                            <i class="material-icons align-middle">bar_chart</i> Statistik
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('toggle_theme') }}">
-                            <i class="material-icons align-middle">{{ 'light_mode' if session.get('theme') == 'dark' else 'dark_mode' }}</i> 
-                            {{ 'Hell-Modus' if session.get('theme') == 'dark' else 'Dunkel-Modus' }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Tracking indicator -->
-    <div id="tracking-indicator"></div>
-
-    <div class="container mt-5">
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <h1>{{ video.name }}</h1>
-            </div>
-        </div>
-
-        <!-- Timestamp display -->
-        <div id="timestamp-display" class="d-none mb-3">
-            Zeitdifferenz: 0:00
-        </div>
-
-        <div class="row">
-            <div class="col-md-9">
-                <div id="fullscreen-container" class="plyr-container">
-                    <div class="d-flex justify-content-end mb-2">
-                        <button id="custom-fullscreen" class="btn btn-outline-primary me-2">
-                            <i class="material-icons align-middle">fullscreen</i> Vollbild
-                        </button>
-                        <div class="subtitle-font-size-controls me-2">
-                            <label for="subtitle-font-size" class="me-1">Untertitelgröße:</label>
-                            <select id="subtitle-font-size" class="form-select form-select-sm d-inline-block" style="width: auto;">
-                                <option value="12">Klein</option>
-                                <option value="16" selected>Normal</option>
-                                <option value="20">Groß</option>
-                                <option value="24">Sehr groß</option>
-                            </select>
-                        </div>
-                    </div>
-                    <video id="player" 
-                           data-basename="{{ video.basename }}"
-                           data-subtitles="{{ 'true' if video.has_subtitles else 'false' }}"
-                           data-thumbnails="{{ 'true' if video.has_thumbnails else 'false' }}"
-                           controls playsinline>
-                        <source src="/videos/{{ video.name }}" type="video/mp4" />
-
-                        {% if video.has_subtitles %}
-                        <track kind="captions" label="Untertitel" src="/videos/{{ video.basename }}-subtitles.vtt" default />
-                        {% endif %}
-                    </video>
+        <!-- Custom CSS -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/custom.css') }}"
+        />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container" style="padding: 10px">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <i class="material-icons align-middle">video_library</i>
+                    Videobibliothek
+                </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-3">
+                        <li class="nav-item">
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-2"
+                                    >Heutige Nutzung:</span
+                                >
+                                <span
+                                    id="today-counter"
+                                    class="badge bg-primary"
+                                    >00:00:00</span
+                                >
+                                <button
+                                    id="toggle-tracking"
+                                    class="btn btn-warning btn-sm mt-2"
+                                    style="margin-left: 10px"
+                                >
+                                    Tracking pausieren
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('index') }}">
+                                <i class="material-icons align-middle">home</i>
+                                Start
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('statistics') }}"
+                            >
+                                <i class="material-icons align-middle"
+                                    >bar_chart</i
+                                >
+                                Statistik
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('toggle_theme') }}"
+                            >
+                                <i class="material-icons align-middle"
+                                    >{{ 'light_mode' if session.get('theme') ==
+                                    'dark' else 'dark_mode' }}</i
+                                >
+                                {{ 'Hell-Modus' if session.get('theme') ==
+                                'dark' else 'Dunkel-Modus' }}
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+            </div>
+        </nav>
 
-                <div class="d-flex justify-content-between mb-4">
-                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
-                        <i class="material-icons align-middle">arrow_back</i> Zurück zur Liste
-                    </a>
+        <!-- Tracking indicator -->
+        <div id="tracking-indicator"></div>
 
-                    <div>
-                        <button id="mark-timestamp" class="btn btn-primary me-2">
-                            <i class="material-icons align-middle">bookmark</i> Zeitmarke setzen
-                        </button>
-
-                        <button id="toggle-subtitles-list" class="btn btn-info">
-                            <i class="material-icons align-middle">subtitles</i> Untertitel anzeigen
-                        </button>
-                    </div>
+        <div class="container mt-5">
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <h1>{{ video.name }}</h1>
                 </div>
+            </div>
 
-                <!-- Subtitles list section -->
-                <div id="subtitles-container" class="card mb-4 d-none">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Untertitelliste</h5>
+            <!-- Timestamp display -->
+            <div id="timestamp-display" class="d-none mb-3">
+                Zeitdifferenz: 0:00
+            </div>
+
+            <div class="row">
+                <div class="col-md-9">
+                    <div id="fullscreen-container" class="plyr-container">
+                        <div class="d-flex justify-content-end mb-2">
+                            <button
+                                id="custom-fullscreen"
+                                class="btn btn-outline-primary me-2"
+                            >
+                                <i class="material-icons align-middle"
+                                    >fullscreen</i
+                                >
+                                Vollbild
+                            </button>
+                            <div class="subtitle-font-size-controls me-2">
+                                <label for="subtitle-font-size" class="me-1"
+                                    >Untertitelgröße:</label
+                                >
+                                <select
+                                    id="subtitle-font-size"
+                                    class="form-select form-select-sm d-inline-block"
+                                    style="width: auto"
+                                >
+                                    <option value="12">Klein</option>
+                                    <option value="16" selected>Normal</option>
+                                    <option value="20">Groß</option>
+                                    <option value="24">Sehr groß</option>
+                                </select>
+                            </div>
+                        </div>
+                        <video
+                            id="player"
+                            data-basename="{{ video.basename }}"
+                            data-subtitles="{{ 'true' if video.has_subtitles else 'false' }}"
+                            data-thumbnails="{{ 'true' if video.has_thumbnails else 'false' }}"
+                            controls
+                            playsinline
+                        >
+                            <source
+                                src="/videos/{{ video.name }}"
+                                type="video/mp4"
+                            />
+
+                            {% if video.has_subtitles %}
+                            <track
+                                kind="captions"
+                                label="Untertitel"
+                                src="/videos/{{ video.basename }}-subtitles.vtt"
+                                default
+                            />
+                            {% endif %}
+                        </video>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <a
+                            href="{{ url_for('index') }}"
+                            class="btn btn-secondary"
+                        >
+                            <i class="material-icons align-middle"
+                                >arrow_back</i
+                            >
+                            Zurück zur Liste
+                        </a>
+
                         <div>
-                            <button id="translate-current" class="btn btn-sm btn-outline-primary me-2" title="Aktuellen Untertitel übersetzen">
-                                <i class="material-icons align-middle">translate</i> Übersetzen
+                            <button
+                                id="mark-timestamp"
+                                class="btn btn-primary me-2"
+                            >
+                                <i class="material-icons align-middle"
+                                    >bookmark</i
+                                >
+                                Zeitmarke setzen
                             </button>
-                            <button id="revert-translation" class="btn btn-sm btn-outline-secondary me-2 d-none" title="Original anzeigen">
-                                <i class="material-icons align-middle">undo</i> Original
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" id="close-subtitles">
-                                <i class="material-icons align-middle">close</i>
+
+                            <button
+                                id="toggle-subtitles-list"
+                                class="btn btn-info"
+                            >
+                                <i class="material-icons align-middle"
+                                    >subtitles</i
+                                >
+                                Untertitel anzeigen
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="subtitle-language-controls mb-3" style="display: none;">
-                            <select id="subtitle-language" class="form-select mb-2">
-                                <option value="de">Deutsch</option>
-                                <option value="en">Englisch</option>
-                                <option value="fr">Französisch</option>
-                                <option value="es">Spanisch</option>
-                                <option value="it">Italienisch</option>
-                                <option value="ja">Japanisch</option>
-                                <option value="zh-cn">Chinesisch</option>
-                                <option value="ru">Russisch</option>
-                            </select>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="remember-language" checked>
-                                <label class="form-check-label" for="remember-language">
-                                    Zielsprache für zukünftige Übersetzungen speichern
-                                </label>
+
+                    <!-- Subtitles list section -->
+                    <div id="subtitles-container" class="card mb-4 d-none">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center"
+                        >
+                            <h5 class="mb-0">Untertitelliste</h5>
+                            <div>
+                                <button
+                                    id="translate-current"
+                                    class="btn btn-sm btn-outline-primary me-2"
+                                    title="Aktuellen Untertitel übersetzen"
+                                >
+                                    <i class="material-icons align-middle"
+                                        >translate</i
+                                    >
+                                    Übersetzen
+                                </button>
+                                <button
+                                    id="revert-translation"
+                                    class="btn btn-sm btn-outline-secondary me-2 d-none"
+                                    title="Original anzeigen"
+                                >
+                                    <i class="material-icons align-middle"
+                                        >undo</i
+                                    >
+                                    Original
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-outline-secondary"
+                                    id="close-subtitles"
+                                >
+                                    <i class="material-icons align-middle"
+                                        >close</i
+                                    >
+                                </button>
                             </div>
-                            <div class="form-text mb-2">Sprache auswählen und auf "Übersetzen" klicken</div>
                         </div>
-                        <div id="subtitle-list" class="subtitle-list">
-                            <div class="text-center py-3">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Lade Untertitel...</span>
+                        <div class="card-body">
+                            <div
+                                class="subtitle-language-controls mb-3"
+                                style="display: none"
+                            >
+                                <select
+                                    id="subtitle-language"
+                                    class="form-select mb-2"
+                                >
+                                    <option value="de">Deutsch</option>
+                                    <option value="en">Englisch</option>
+                                    <option value="fr">Französisch</option>
+                                    <option value="es">Spanisch</option>
+                                    <option value="it">Italienisch</option>
+                                    <option value="ja">Japanisch</option>
+                                    <option value="zh-cn">Chinesisch</option>
+                                    <option value="ru">Russisch</option>
+                                </select>
+                                <div class="form-check mb-2">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="remember-language"
+                                        checked
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        for="remember-language"
+                                    >
+                                        Zielsprache für zukünftige Übersetzungen
+                                        speichern
+                                    </label>
                                 </div>
-                                <p class="mt-2">Lade Untertitel...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Keyboard navigation info -->
-                <div class="nav-keys-info mb-4">
-                    <h5>Tastaturnavigation</h5>
-                    <p>
-                        <span class="key">A</span> Vorheriger Untertitel oder aktuellen wiederholen
-                        <span class="key">D</span> Nächster Untertitel
-                    </p>
-                </div>
-
-                <!-- Subtitle blocker controls -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Untertitel ausblenden</h5>
-                        <button id="add-blocker" class="btn btn-primary btn-sm">
-                            <i class="material-icons align-middle">add</i> Neuer Block
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="blocker-list" class="blocker-list">
-                            <div class="text-center py-3 text-muted">
-                                Keine Blöcke vorhanden
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- File upload section -->
-                {% if not video.has_subtitles or not video.has_thumbnails %}
-                <div class="upload-container card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Fehlende Dateien hochladen</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="file-upload-status"></div>
-
-                        {% if not video.has_subtitles %}
-                        <div class="mb-3">
-                            <label for="subtitle-upload" class="form-label">Untertitel hochladen (.vtt)</label>
-                            <input type="file" class="form-control" id="subtitle-upload" accept=".vtt">
-                            <div class="form-text">Die Datei wird als "{{ video.basename }}-subtitles.vtt" gespeichert</div>
-                        </div>
-                        {% endif %}
-
-                        {% if not video.has_thumbnails %}
-                        <div class="mb-3">
-                            <label for="thumbnail-upload" class="form-label">Vorschaubilder hochladen (.vtt)</label>
-                            <input type="file" class="form-control" id="thumbnail-upload" accept=".vtt">
-                            <div class="form-text">Die Datei wird als "{{ video.basename }}-thumbnails.vtt" gespeichert</div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Playlist sidebar -->
-            <div class="col-md-3">
-                <div class="card h-100 mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Playlist</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="compact-playlist">
-                            {% for video_item in videos %}
-                            <a href="{{ url_for('player', video_name=video_item.name) }}" class="playlist-item{{ ' active' if video_item.name == video.name else '' }}">
-                                <div class="playlist-thumbnail">
-                                    {% if video_item.has_cover %}
-                                    <img src="/videos/{{ video_item.cover_path }}" alt="{{ video_item.name }}">
-                                    {% else %}
-                                    <i class="material-icons">movie</i>
-                                    {% endif %}
+                                <div class="form-text mb-2">
+                                    Sprache auswählen und auf "Übersetzen"
+                                    klicken
                                 </div>
-                                <div class="playlist-info">
-                                    <div class="playlist-title">{{ video_item.basename }}</div>
-                                    <div class="playlist-badges">
-                                        {% if video_item.has_subtitles %}
-                                            <span class="badge bg-success">Untertitel</span>
+                            </div>
+                            <div id="subtitle-list" class="subtitle-list">
+                                <div class="text-center py-3">
+                                    <div
+                                        class="spinner-border text-primary"
+                                        role="status"
+                                    >
+                                        <span class="visually-hidden"
+                                            >Lade Untertitel...</span
+                                        >
+                                    </div>
+                                    <p class="mt-2">Lade Untertitel...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard navigation info -->
+                    <div class="nav-keys-info mb-4">
+                        <h5>Tastaturnavigation</h5>
+                        <p>
+                            <span class="key">A</span> Vorheriger Untertitel
+                            oder aktuellen wiederholen
+                            <span class="key">D</span> Nächster Untertitel
+                        </p>
+                    </div>
+
+                    <!-- Subtitle blocker controls -->
+                    <div class="card mb-4">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center"
+                        >
+                            <h5 class="mb-0">Untertitel ausblenden</h5>
+                            <button
+                                id="add-blocker"
+                                class="btn btn-primary btn-sm"
+                            >
+                                <i class="material-icons align-middle">add</i>
+                                Neuer Block
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="blocker-list" class="blocker-list">
+                                <div class="text-center py-3 text-muted">
+                                    Keine Blöcke vorhanden
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File upload section -->
+                    {% if not video.has_subtitles or not video.has_thumbnails %}
+                    <div class="upload-container card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Fehlende Dateien hochladen</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="file-upload-status"></div>
+
+                            {% if not video.has_subtitles %}
+                            <div class="mb-3">
+                                <label for="subtitle-upload" class="form-label"
+                                    >Untertitel hochladen (.vtt)</label
+                                >
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="subtitle-upload"
+                                    accept=".vtt"
+                                />
+                                <div class="form-text">
+                                    Die Datei wird als "{{ video.basename
+                                    }}-subtitles.vtt" gespeichert
+                                </div>
+                            </div>
+                            {% endif %} {% if not video.has_thumbnails %}
+                            <div class="mb-3">
+                                <label for="thumbnail-upload" class="form-label"
+                                    >Vorschaubilder hochladen (.vtt)</label
+                                >
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="thumbnail-upload"
+                                    accept=".vtt"
+                                />
+                                <div class="form-text">
+                                    Die Datei wird als "{{ video.basename
+                                    }}-thumbnails.vtt" gespeichert
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Playlist sidebar -->
+                <div class="col-md-3">
+                    <div class="card h-100 mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Playlist</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="compact-playlist">
+                                {% for video_item in videos %}
+                                <a
+                                    href="{{ url_for('player', video_name=video_item.name) }}"
+                                    class="playlist-item{{ ' active' if video_item.name == video.name else '' }}"
+                                >
+                                    <div class="playlist-thumbnail">
+                                        {% if video_item.has_cover %}
+                                        <img
+                                            src="/videos/{{ video_item.cover_path }}"
+                                            alt="{{ video_item.name }}"
+                                        />
+                                        {% else %}
+                                        <i class="material-icons">movie</i>
                                         {% endif %}
                                     </div>
-                                </div>
-                            </a>
-                            {% endfor %}
+                                    <div class="playlist-info">
+                                        <div class="playlist-title">
+                                            {{ video_item.basename }}
+                                        </div>
+                                        <div class="playlist-badges">
+                                            {% if video_item.has_subtitles %}
+                                            <span class="badge bg-success"
+                                                >Untertitel</span
+                                            >
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Timemarks section directly in player -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Zeitmarken</h5>
-                        <button id="clear-timemarks" class="btn btn-sm btn-outline-danger">Löschen</button>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="timemarks-list" class="timemarks-list">
-                            <div class="text-center py-3 text-muted">
-                                Keine Zeitmarken gesetzt
+                    <!-- Timemarks section directly in player -->
+                    <div class="card mb-4">
+                        <div
+                            class="card-header d-flex justify-content-between align-items-center"
+                        >
+                            <h5 class="mb-0">Zeitmarken</h5>
+                            <button
+                                id="clear-timemarks"
+                                class="btn btn-sm btn-outline-danger"
+                            >
+                                Löschen
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="timemarks-list" class="timemarks-list">
+                                <div class="text-center py-3 text-muted">
+                                    Keine Zeitmarken gesetzt
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <footer class="mt-5 py-3">
-        <div class="container text-center">
-            <p class="text-muted mb-0">Videobibliothek mit Nutzungsverfolgung</p>
-        </div>
-    </footer>
+        <footer class="mt-5 py-3">
+            <div class="container text-center">
+                <p class="text-muted mb-0">
+                    Videobibliothek mit Nutzungsverfolgung
+                </p>
+            </div>
+        </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Plyr JS -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+        <!-- Plyr JS -->
+        <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/player.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/usage_tracker.js') }}"></script>
-</body>
+        <!-- Custom JS -->
+        <script src="{{ url_for('static', filename='js/player.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/usage_tracker.js') }}"></script>
+    </body>
 </html>
