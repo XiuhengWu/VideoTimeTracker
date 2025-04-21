@@ -355,8 +355,8 @@ def transcribe_audio():
         audio_array, sample_rate = sf.read(wav_io)
         # Convert to float32 for whisper
         audio_array = audio_array.astype(np.float32)
-        # Transcribe using Whisper
-        result = whisper_model.transcribe(audio_array)
+        # Transcribe using Whisper with German language
+        result = whisper_model.transcribe(audio_array, language="de")
 
         return jsonify({'success': True, 'text': result['text']})
     except Exception as e:
@@ -384,8 +384,11 @@ def check_silence():
         import subprocess
         import io
 
-        # Use ffmpeg to convert webm to wav with specific format
-        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1'],
+        logger.debug(f"Audio data format (first 32 bytes): {audio_bytes[:32].hex()}")
+        logger.debug(f"Audio length: {len(audio_bytes)} bytes")
+
+        # Use ffmpeg to convert webm to wav with specific format and debug info
+        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-acodec', 'pcm_f32le', '-f', 'wav', 'pipe:1'],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
