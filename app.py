@@ -343,7 +343,7 @@ def transcribe_audio():
         import io
 
         # Use ffmpeg to convert webm to wav
-        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1'],
+        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1'],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
@@ -353,6 +353,8 @@ def transcribe_audio():
         # Read the converted wav data
         wav_io = io.BytesIO(output)
         audio_array, sample_rate = sf.read(wav_io)
+        # Convert to float32 for whisper
+        audio_array = audio_array.astype(np.float32)
         # Transcribe using Whisper
         result = whisper_model.transcribe(audio_array)
 
@@ -382,8 +384,8 @@ def check_silence():
         import subprocess
         import io
 
-        # Use ffmpeg to convert webm to wav
-        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1'],
+        # Use ffmpeg to convert webm to wav with specific format
+        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1'],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
@@ -392,7 +394,7 @@ def check_silence():
 
         # Read the converted wav data
         wav_io = io.BytesIO(output)
-        audio_array, sample_rate = sf.read(wav_io)
+        audio_array, sample_rate = sf.read(wav_io, dtype='float32')
 
         # Calculate RMS amplitude
         frame_length = int(sample_rate * 0.025)  # 25ms frames
