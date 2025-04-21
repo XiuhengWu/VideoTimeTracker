@@ -7,16 +7,6 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from werkzeug.utils import secure_filename
 from googletrans import Translator
 from duden import get
-import whisper
-import numpy as np
-import soundfile as sf
-from io import BytesIO
-import base64
-import subprocess
-import io
-
-# Initialize Whisper model
-whisper_model = whisper.load_model("tiny")
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -319,112 +309,6 @@ def translate_text():
 @app.route('/api/explain_word', methods=['GET'])
 def explain_word():
     """Get word explanation from Duden"""
-
-
-@app.route('/api/transcribe', methods=['POST'])
-def transcribe_audio():
-    """Transcribe audio data"""
-    try:
-        # Get audio data from request
-        data = request.get_json()
-        audio_data = data.get('audio')
-        if not audio_data:
-            return jsonify({
-                'success': False,
-                'error': 'No audio data provided'
-            })
-
-        # Decode base64 audio data
-        audio_bytes = base64.b64decode(audio_data.split(',')[1])
-        audio_io = BytesIO(audio_bytes)
-
-        # Convert audio to numpy array
-        import subprocess
-        import io
-
-        # Use ffmpeg to convert webm to wav
-        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1'],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-
-        output, err = process.communicate(input=audio_bytes)
-
-        # Read the converted wav data
-        wav_io = io.BytesIO(output)
-        audio_array, sample_rate = sf.read(wav_io)
-        # Convert to float32 for whisper
-        audio_array = audio_array.astype(np.float32)
-        # Transcribe using Whisper with German language
-        result = whisper_model.transcribe(audio_array, language="de")
-
-        return jsonify({'success': True, 'text': result['text']})
-    except Exception as e:
-        logger.error(f"Transcription error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/api/check_silence', methods=['POST'])
-def check_silence():
-    """Check if audio contains silence"""
-    try:
-        data = request.get_json()
-        audio_data = data.get('audio')
-        if not audio_data:
-            return jsonify({
-                'success': False,
-                'error': 'No audio data provided'
-            })
-
-        # Decode base64 audio data
-        audio_bytes = base64.b64decode(audio_data.split(',')[1])
-        audio_io = BytesIO(audio_bytes)
-
-        # Convert audio to numpy array
-        import subprocess
-        import io
-
-        logger.debug(f"Audio data format (first 32 bytes): {audio_bytes[:32].hex()}")
-        logger.debug(f"Audio length: {len(audio_bytes)} bytes")
-
-        # Use ffmpeg to convert webm to wav with specific format and debug info
-        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-acodec', 'pcm_f32le', '-f', 'wav', 'pipe:1'],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-
-        output, err = process.communicate(input=audio_bytes)
-
-        # Read the converted wav data
-        wav_io = io.BytesIO(output)
-        audio_array, sample_rate = sf.read(wav_io, dtype='float32')
-
-        # Calculate RMS amplitude
-        frame_length = int(sample_rate * 0.025)  # 25ms frames
-        threshold = 0.01  # Silence threshold
-
-        # Calculate frame energies
-        frame_energies = []
-        for i in range(0, len(audio_array), frame_length):
-            frame = audio_array[i:i + frame_length]
-            energy = np.sqrt(np.mean(frame**2))
-            frame_energies.append(energy)
-
-        # Detect silence (1 second)
-        silence_frames = int(1.0 / 0.025)  # Number of frames in 1 second
-        is_silence = False
-
-        if len(frame_energies) >= silence_frames:
-            recent_frames = frame_energies[-silence_frames:]
-            if all(energy < threshold for energy in recent_frames):
-                is_silence = True
-
-        return jsonify({'success': True, 'is_silence': is_silence})
-    except Exception as e:
-        logger.error(f"Silence detection error: {e}")
-        logger.error(f"Audio format: {audio_bytes[:32].hex()}")  # Log first 32 bytes to check format
-        logger.error(f"Audio length: {len(audio_bytes)} bytes")
-        return jsonify({'success': False, 'error': str(e)})
     word = request.args.get('word', '')
 
     if not word:
