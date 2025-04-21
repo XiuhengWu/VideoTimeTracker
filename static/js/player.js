@@ -124,12 +124,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    let isPaused = false;
+
     if (pauseRecordingBtn) {
         pauseRecordingBtn.addEventListener('click', async () => {
-            if (isRecording && audioChunks.length > 0) {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                await transcribeAudio(audioBlob);
-                audioChunks = [];
+            if (!isRecording) return;
+
+            if (!isPaused) {
+                // Pause recording
+                mediaRecorder.pause();
+                isPaused = true;
+                pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
+                
+                // Transcribe current chunk
+                if (audioChunks.length > 0) {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await transcribeAudio(audioBlob);
+                    audioChunks = [];
+                }
+            } else {
+                // Resume recording
+                mediaRecorder.resume();
+                isPaused = false;
+                pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
             }
         });
     }

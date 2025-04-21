@@ -419,6 +419,8 @@ def check_silence():
         return jsonify({'success': True, 'is_silence': is_silence})
     except Exception as e:
         logger.error(f"Silence detection error: {e}")
+        logger.error(f"Audio format: {audio_bytes[:32].hex()}")  # Log first 32 bytes to check format
+        logger.error(f"Audio length: {len(audio_bytes)} bytes")
         return jsonify({'success': False, 'error': str(e)})
     word = request.args.get('word', '')
 
