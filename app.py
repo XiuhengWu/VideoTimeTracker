@@ -7,6 +7,14 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from werkzeug.utils import secure_filename
 from googletrans import Translator
 from duden import get
+import whisper
+import numpy as np
+import soundfile as sf
+from io import BytesIO
+import base64
+
+# Initialize Whisper model
+whisper_model = whisper.load_model("tiny")
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -309,6 +317,78 @@ def translate_text():
 @app.route('/api/explain_word', methods=['GET'])
 def explain_word():
     """Get word explanation from Duden"""
+
+@app.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    """Transcribe audio data"""
+    try:
+        # Get audio data from request
+        data = request.get_json()
+        audio_data = data.get('audio')
+        if not audio_data:
+            return jsonify({'success': False, 'error': 'No audio data provided'})
+
+        # Decode base64 audio data
+        audio_bytes = base64.b64decode(audio_data.split(',')[1])
+        audio_io = BytesIO(audio_bytes)
+        
+        # Read audio using soundfile
+        audio_array, sample_rate = sf.read(audio_io)
+        
+        # Transcribe using Whisper
+        result = whisper_model.transcribe(audio_array)
+        
+        return jsonify({
+            'success': True,
+            'text': result['text']
+        })
+    except Exception as e:
+        logger.error(f"Transcription error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/check_silence', methods=['POST'])
+def check_silence():
+    """Check if audio contains silence"""
+    try:
+        data = request.get_json()
+        audio_data = data.get('audio')
+        if not audio_data:
+            return jsonify({'success': False, 'error': 'No audio data provided'})
+
+        # Decode base64 audio data
+        audio_bytes = base64.b64decode(audio_data.split(',')[1])
+        audio_io = BytesIO(audio_bytes)
+        
+        # Read audio using soundfile
+        audio_array, sample_rate = sf.read(audio_io)
+        
+        # Calculate RMS amplitude
+        frame_length = int(sample_rate * 0.025)  # 25ms frames
+        threshold = 0.01  # Silence threshold
+        
+        # Calculate frame energies
+        frame_energies = []
+        for i in range(0, len(audio_array), frame_length):
+            frame = audio_array[i:i + frame_length]
+            energy = np.sqrt(np.mean(frame**2))
+            frame_energies.append(energy)
+        
+        # Detect silence (1 second)
+        silence_frames = int(1.0 / 0.025)  # Number of frames in 1 second
+        is_silence = False
+        
+        if len(frame_energies) >= silence_frames:
+            recent_frames = frame_energies[-silence_frames:]
+            if all(energy < threshold for energy in recent_frames):
+                is_silence = True
+        
+        return jsonify({
+            'success': True,
+            'is_silence': is_silence
+        })
+    except Exception as e:
+        logger.error(f"Silence detection error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
     word = request.args.get('word', '')
 
     if not word:

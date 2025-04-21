@@ -2,6 +2,138 @@
  * Player module for handling video playback, subtitle navigation and timestamp marking
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Audio recording functionality
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let silenceCheckInterval;
+    
+    const toggleRecordingBtn = document.getElementById('toggle-recording');
+    const pauseRecordingBtn = document.getElementById('pause-recording');
+    const transcriptionText = document.getElementById('transcription-text');
+    
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.start(250); // Collect data every 250ms
+            isRecording = true;
+            
+            // Update UI
+            toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
+            toggleRecordingBtn.classList.add('recording');
+            pauseRecordingBtn.disabled = false;
+            
+            // Start silence detection
+            silenceCheckInterval = setInterval(checkForSilence, 250);
+            
+        } catch (err) {
+            console.error('Error accessing microphone:', err);
+            alert('Fehler beim Zugriff auf das Mikrofon: ' + err.message);
+        }
+    }
+    
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            clearInterval(silenceCheckInterval);
+            isRecording = false;
+            
+            // Update UI
+            toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">mic</i> Aufnahme starten';
+            toggleRecordingBtn.classList.remove('recording');
+            pauseRecordingBtn.disabled = true;
+        }
+    }
+    
+    async function transcribeAudio(audioBlob) {
+        // Convert audio blob to base64
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        
+        reader.onload = async () => {
+            try {
+                const response = await fetch('/api/transcribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        audio: reader.result
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    transcriptionText.value += (transcriptionText.value ? '\\n' : '') + data.text;
+                } else {
+                    console.error('Transcription error:', data.error);
+                }
+            } catch (err) {
+                console.error('Error during transcription:', err);
+            }
+        };
+    }
+    
+    async function checkForSilence() {
+        if (!isRecording || audioChunks.length === 0) return;
+        
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        
+        reader.onload = async () => {
+            try {
+                const response = await fetch('/api/check_silence', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        audio: reader.result
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success && data.is_silence) {
+                    // Transcribe current audio chunk
+                    await transcribeAudio(audioBlob);
+                    // Clear chunks for next segment
+                    audioChunks = [];
+                }
+            } catch (err) {
+                console.error('Error checking silence:', err);
+            }
+        };
+    }
+    
+    // Event listeners
+    if (toggleRecordingBtn) {
+        toggleRecordingBtn.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+    }
+    
+    if (pauseRecordingBtn) {
+        pauseRecordingBtn.addEventListener('click', async () => {
+            if (isRecording && audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                await transcribeAudio(audioBlob);
+                audioChunks = [];
+            }
+        });
+    }
+
     // Subtitle blocker functionality
     const blockers = new Map();
     let blockerId = 0;
