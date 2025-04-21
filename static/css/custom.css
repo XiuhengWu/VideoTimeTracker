@@ -587,6 +587,22 @@
     gap: 5px;
 }
 
+/* Audio recording styles */
+#toggle-recording.recording {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+}
+
+#toggle-recording.recording i {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .calendar-grid {
