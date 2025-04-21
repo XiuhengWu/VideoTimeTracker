@@ -12,6 +12,8 @@ import numpy as np
 import soundfile as sf
 from io import BytesIO
 import base64
+import subprocess
+import io
 
 # Initialize Whisper model
 whisper_model = whisper.load_model("tiny")
@@ -336,9 +338,21 @@ def transcribe_audio():
         audio_bytes = base64.b64decode(audio_data.split(',')[1])
         audio_io = BytesIO(audio_bytes)
 
-        # Read audio using soundfile
-        audio_array, sample_rate = sf.read(audio_io)
+        # Convert audio to numpy array
+        import subprocess
+        import io
 
+        # Use ffmpeg to convert webm to wav
+        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1'],
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
+        output, err = process.communicate(input=audio_bytes)
+
+        # Read the converted wav data
+        wav_io = io.BytesIO(output)
+        audio_array, sample_rate = sf.read(wav_io)
         # Transcribe using Whisper
         result = whisper_model.transcribe(audio_array)
 
@@ -364,8 +378,21 @@ def check_silence():
         audio_bytes = base64.b64decode(audio_data.split(',')[1])
         audio_io = BytesIO(audio_bytes)
 
-        # Read audio using soundfile
-        audio_array, sample_rate = sf.read(audio_io)
+        # Convert audio to numpy array
+        import subprocess
+        import io
+
+        # Use ffmpeg to convert webm to wav
+        process = subprocess.Popen(['ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1'],
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+
+        output, err = process.communicate(input=audio_bytes)
+
+        # Read the converted wav data
+        wav_io = io.BytesIO(output)
+        audio_array, sample_rate = sf.read(wav_io)
 
         # Calculate RMS amplitude
         frame_length = int(sample_rate * 0.025)  # 25ms frames

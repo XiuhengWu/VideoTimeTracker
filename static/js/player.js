@@ -7,56 +7,56 @@ document.addEventListener('DOMContentLoaded', function() {
     let audioChunks = [];
     let isRecording = false;
     let silenceCheckInterval;
-    
+
     const toggleRecordingBtn = document.getElementById('toggle-recording');
     const pauseRecordingBtn = document.getElementById('pause-recording');
     const transcriptionText = document.getElementById('transcription-text');
-    
+
     async function startRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
-            
+
             mediaRecorder.ondataavailable = (event) => {
                 audioChunks.push(event.data);
             };
-            
+
             mediaRecorder.start(250); // Collect data every 250ms
             isRecording = true;
-            
+
             // Update UI
             toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
             toggleRecordingBtn.classList.add('recording');
             pauseRecordingBtn.disabled = false;
-            
+
             // Start silence detection
             silenceCheckInterval = setInterval(checkForSilence, 250);
-            
+
         } catch (err) {
             console.error('Error accessing microphone:', err);
             alert('Fehler beim Zugriff auf das Mikrofon: ' + err.message);
         }
     }
-    
+
     function stopRecording() {
         if (mediaRecorder && isRecording) {
             mediaRecorder.stop();
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
             clearInterval(silenceCheckInterval);
             isRecording = false;
-            
+
             // Update UI
             toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">mic</i> Aufnahme starten';
             toggleRecordingBtn.classList.remove('recording');
             pauseRecordingBtn.disabled = true;
         }
     }
-    
+
     async function transcribeAudio(audioBlob) {
         // Convert audio blob to base64
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
-        
+
         reader.onload = async () => {
             try {
                 const response = await fetch('/api/transcribe', {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         audio: reader.result
                     })
                 });
-                
+
                 const data = await response.json();
                 if (data.success) {
                     transcriptionText.value += (transcriptionText.value ? '\\n' : '') + data.text;
@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
     }
-    
+
     async function checkForSilence() {
         if (!isRecording || audioChunks.length === 0) return;
-        
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
-        
+
         reader.onload = async () => {
             try {
                 const response = await fetch('/api/check_silence', {
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         audio: reader.result
                     })
                 });
-                
+
                 const data = await response.json();
                 if (data.success && data.is_silence) {
                     // Transcribe current audio chunk
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
     }
-    
+
     // Event listeners
     if (toggleRecordingBtn) {
         toggleRecordingBtn.addEventListener('click', () => {
@@ -123,11 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     if (pauseRecordingBtn) {
         pauseRecordingBtn.addEventListener('click', async () => {
             if (isRecording && audioChunks.length > 0) {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 await transcribeAudio(audioBlob);
                 audioChunks = [];
             }
