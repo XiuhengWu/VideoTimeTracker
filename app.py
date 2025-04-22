@@ -2,14 +2,7 @@ import os
 import json
 import logging
 import re
-import time
-import wave
-import threading
-import numpy as np
-import sounddevice as sd
-import whisper
 from datetime import datetime
-from queue import Queue
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory, flash
 from werkzeug.utils import secure_filename
 from googletrans import Translator
@@ -23,112 +16,6 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET",
                                 "devkey-replace-in-production")
-
-
-class AudioRecorder:
-
-    def __init__(self):
-        self.recording = False
-        self.paused = False
-        self.audio_queue = Queue()
-        self.audio_data = []
-        self.last_silence = 0
-        self.silence_threshold = 0.01
-        self.sample_rate = 16000
-        self.channels = 1
-        self.model = None  # Load model only when needed
-        self.recording_thread = None
-        self.max_buffer_size = 30  # Max seconds of audio to process at once
-
-    def load_model(self):
-        if self.model is None:
-            self.model = whisper.load_model("tiny", device="cpu") # Load on CPU
-
-    def audio_callback(self, indata, frames, time_info, status):
-        if status:
-            logger.warning(f"Audio callback status: {status}")
-        if self.recording and not self.paused:
-            audio_chunk = indata.copy()
-            self.audio_queue.put(audio_chunk)
-
-            # Check for silence
-            volume_norm = np.linalg.norm(audio_chunk) / frames
-            if volume_norm < self.silence_threshold:
-                current_time = time.time()  # Use Python's time module
-                if current_time - self.last_silence > 1.0 and self.audio_data:
-                    self.transcribe_current_segment()
-                self.last_silence = current_time
-
-    def start_recording(self):
-        self.recording = True
-        self.paused = False
-        self.audio_data = []
-        self.last_silence = time.time()
-
-        def record_thread():
-            with sd.InputStream(callback=self.audio_callback,
-                                channels=self.channels,
-                                samplerate=self.sample_rate):
-                while self.recording:
-                    if not self.audio_queue.empty():
-                        audio_chunk = self.audio_queue.get()
-                        self.audio_data.append(audio_chunk)
-                    time.sleep(0.1)
-
-        self.recording_thread = threading.Thread(target=record_thread)
-        self.recording_thread.start()
-
-    def pause_recording(self):
-        self.paused = True
-        if self.audio_data:
-            return self.transcribe_current_segment()
-        return ""
-
-    def resume_recording(self):
-        self.paused = False
-        self.last_silence = time.time()
-
-    def stop_recording(self):
-        self.recording = False
-        if self.recording_thread:
-            self.recording_thread.join()
-        if self.audio_data:
-            return self.transcribe_current_segment()
-        return ""
-
-    def transcribe_current_segment(self):
-        if not self.audio_data:
-            return ""
-
-        try:
-            # Load model if needed
-            self.load_model()
-
-            # Convert recent audio data to numpy array (last 30 seconds)
-            recent_data = self.audio_data[-self.max_buffer_size:]
-            audio = np.concatenate(recent_data)
-
-            # Convert to 1D float32 array as required by Whisper
-            audio = audio.flatten().astype(np.float32)
-
-            # Transcribe using Whisper
-            result = self.model.transcribe(audio, language="de")
-            logger.debug(f"Transcribing {len(audio)} samples")
-            logger.debug(f"Transcription result: {result}")
-            transcription = result["text"].strip()
-
-            # Keep only the most recent buffer
-            self.audio_data = self.audio_data[-self.max_buffer_size:]
-
-            logger.debug(f"Transcription: {transcription}")
-            return transcription
-        except Exception as e:
-            logger.error(f"Transcription error: {e}")
-            return "Fehler bei der Transkription"
-
-
-# Initialize the audio recorder
-audio_recorder = AudioRecorder()
 
 # Configuration
 VIDEO_DIRECTORY = os.environ.get("VIDEO_DIRECTORY", r"./videos")
@@ -416,46 +303,6 @@ def translate_text():
 
     except Exception as e:
         logger.error(f"Translation error: {e}")
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/api/start_recording', methods=['POST'])
-def start_recording():
-    try:
-        audio_recorder.start_recording()
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Error starting recording: {e}")
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/api/pause_recording', methods=['POST'])
-def pause_recording():
-    try:
-        transcription = audio_recorder.pause_recording()
-        return jsonify({'success': True, 'transcription': transcription})
-    except Exception as e:
-        logger.error(f"Error pausing recording: {e}")
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/api/resume_recording', methods=['POST'])
-def resume_recording():
-    try:
-        audio_recorder.resume_recording()
-        return jsonify({'success': True})
-    except Exception as e:
-        logger.error(f"Error resuming recording: {e}")
-        return jsonify({'success': False, 'error': str(e)})
-
-
-@app.route('/api/stop_recording', methods=['POST'])
-def stop_recording():
-    try:
-        transcription = audio_recorder.stop_recording()
-        return jsonify({'success': True, 'transcription': transcription})
-    except Exception as e:
-        logger.error(f"Error stopping recording: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 
