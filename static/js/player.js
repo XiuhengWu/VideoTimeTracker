@@ -72,7 +72,12 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
             navigator.clipboard.readText().then(text => {
                 const matches = text.match(/```\n([\s\S]*?)\n\n------\n\n([\s\S]*?)```/);
                 if (!matches) {
-                    alert('Ungültiges Format des einzufügenden Textes');
+                    // Bei ungültigem Format den gesamten Text als Hinweis anzeigen
+                    document.getElementById('improved-text').innerHTML = '';
+                    document.getElementById('additional-hint').textContent = text;
+                    
+                    // Feedback anzeigen
+                    alert('Ungültiges Format: Der Text sollte in Codeblocks (```) eingeschlossen sein');
                     return;
                 }
                 const improvedText = matches[1].trim();
