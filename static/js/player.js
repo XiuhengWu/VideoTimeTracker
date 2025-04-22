@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data.success) {
                             isRecording = true;
                             isPaused = false;
+                            transcriptionText.value = ''; // Clear previous transcription
                             toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
                             toggleRecordingBtn.className = 'btn btn-danger';
                             pauseRecordingBtn.disabled = false;
