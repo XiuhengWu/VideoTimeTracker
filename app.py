@@ -24,7 +24,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET",
                                 "devkey-replace-in-production")
 
+
 class AudioRecorder:
+
     def __init__(self):
         self.recording = False
         self.paused = False
@@ -37,7 +39,7 @@ class AudioRecorder:
         self.model = None  # Load model only when needed
         self.recording_thread = None
         self.max_buffer_size = 30  # Max seconds of audio to process at once
-        
+
     def load_model(self):
         if self.model is None:
             self.model = whisper.load_model("tiny")
@@ -48,7 +50,7 @@ class AudioRecorder:
         if self.recording and not self.paused:
             audio_chunk = indata.copy()
             self.audio_queue.put(audio_chunk)
-            
+
             # Check for silence
             volume_norm = np.linalg.norm(audio_chunk) / frames
             if volume_norm < self.silence_threshold:
@@ -62,11 +64,11 @@ class AudioRecorder:
         self.paused = False
         self.audio_data = []
         self.last_silence = time.time()
-        
+
         def record_thread():
             with sd.InputStream(callback=self.audio_callback,
-                              channels=self.channels,
-                              samplerate=self.sample_rate):
+                                channels=self.channels,
+                                samplerate=self.sample_rate):
                 while self.recording:
                     if not self.audio_queue.empty():
                         audio_chunk = self.audio_queue.get()
@@ -97,29 +99,33 @@ class AudioRecorder:
     def transcribe_current_segment(self):
         if not self.audio_data:
             return ""
-            
+
         try:
             # Load model if needed
             self.load_model()
-            
+
             # Convert recent audio data to numpy array (last 30 seconds)
             recent_data = self.audio_data[-self.max_buffer_size:]
             audio = np.concatenate(recent_data)
-            
+
             # Convert to 1D float32 array as required by Whisper
             audio = audio.flatten().astype(np.float32)
-            
+
             # Transcribe using Whisper
             result = self.model.transcribe(audio)
+            logger.debug(f"Transcribing {len(audio)} samples")
+            logger.debug(f"Transcription result: {result}")
             transcription = result["text"].strip()
-            
+
             # Keep only the most recent buffer
             self.audio_data = self.audio_data[-self.max_buffer_size:]
-            
+
+            logger.debug(f"Transcription: {transcription}")
             return transcription
         except Exception as e:
             logger.error(f"Transcription error: {e}")
             return "Fehler bei der Transkription"
+
 
 # Initialize the audio recorder
 audio_recorder = AudioRecorder()
@@ -422,6 +428,7 @@ def start_recording():
         logger.error(f"Error starting recording: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+
 @app.route('/api/pause_recording', methods=['POST'])
 def pause_recording():
     try:
@@ -430,6 +437,7 @@ def pause_recording():
     except Exception as e:
         logger.error(f"Error pausing recording: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/api/resume_recording', methods=['POST'])
 def resume_recording():
@@ -440,6 +448,7 @@ def resume_recording():
         logger.error(f"Error resuming recording: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+
 @app.route('/api/stop_recording', methods=['POST'])
 def stop_recording():
     try:
@@ -448,6 +457,7 @@ def stop_recording():
     except Exception as e:
         logger.error(f"Error stopping recording: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/api/explain_word', methods=['GET'])
 def explain_word():
