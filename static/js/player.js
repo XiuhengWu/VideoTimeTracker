@@ -52,9 +52,10 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     const pasteBtn = document.createElement('button');
-    pasteBtn.className = 'btn btn-outline-secondary';
+    pasteBtn.className = 'btn btn-outline-secondary ms-0';
     pasteBtn.innerHTML = '<i class="material-icons align-middle">content_paste</i> Einfügen';
     copyPromptBtn.insertAdjacentElement('afterend', pasteBtn);
+    copyPromptBtn.classList.add('me-0');
 
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
