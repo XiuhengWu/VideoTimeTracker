@@ -30,7 +30,9 @@ FORMAT = pyaudio.paFloat32
 CHANNELS = 1
 RATE = 16000
 
+
 class AudioRecorder:
+
     def __init__(self):
         self.audio = pyaudio.PyAudio()
         self.stream = None
@@ -41,13 +43,11 @@ class AudioRecorder:
 
     def start_recording(self):
         if not self.is_recording:
-            self.stream = self.audio.open(
-                format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK
-            )
+            self.stream = self.audio.open(format=FORMAT,
+                                          channels=CHANNELS,
+                                          rate=RATE,
+                                          input=True,
+                                          frames_per_buffer=CHUNK)
             self.frames = []
             self.is_recording = True
             threading.Thread(target=self._record).start()
@@ -86,18 +86,20 @@ class AudioRecorder:
     def transcribe_audio(self):
         if not self.frames:
             return ""
-            
+
         with self.lock:
             # Convert frames to numpy array
             audio_data = np.frombuffer(b''.join(self.frames), dtype=np.float32)
-            
+
             try:
                 # Transcribe using Whisper
-                result = self.whisper_model.transcribe(audio_data, language="de")
+                result = self.whisper_model.transcribe(audio_data,
+                                                       language="de")
                 return result["text"].strip()
             except Exception as e:
                 logger.error(f"Error transcribing audio: {e}")
                 return ""
+
 
 # Initialize global audio recorder
 audio_recorder = AudioRecorder()
@@ -125,9 +127,10 @@ def get_video_files(current_dir=None):
     videos = []
     folders = []
     valid_extensions = ['.mp4', '.webm', '.ogg', '.mov', '.mkv']
-    
+
     scan_dir = current_dir if current_dir else VIDEO_DIRECTORY
-    rel_path = os.path.relpath(scan_dir, VIDEO_DIRECTORY) if current_dir else ''
+    rel_path = os.path.relpath(scan_dir,
+                               VIDEO_DIRECTORY) if current_dir else ''
 
     try:
         for item in os.listdir(scan_dir):
@@ -141,28 +144,38 @@ def get_video_files(current_dir=None):
                 ext = os.path.splitext(item)[1].lower()
                 if ext in valid_extensions:
                     basename = os.path.splitext(item)[0]
-                    
+
                     # Check for subtitle and thumbnail files
-                    subtitle_path = os.path.join(scan_dir, f"{basename}-subtitles.vtt")
-                    thumbnail_path = os.path.join(scan_dir, f"{basename}-thumbnails.vtt")
-                    
+                    subtitle_path = os.path.join(scan_dir,
+                                                 f"{basename}-subtitles.vtt")
+                    thumbnail_path = os.path.join(
+                        scan_dir, f"{basename}-thumbnails.vtt")
+
                     # Check for cover image
                     cover_path = f"{basename}.jpg"
-                    has_cover = os.path.isfile(os.path.join(scan_dir, cover_path))
-                    
+                    has_cover = os.path.isfile(
+                        os.path.join(scan_dir, cover_path))
+
                     videos.append({
-                        'name': item,
-                        'path': os.path.join(rel_path, item),
-                        'has_subtitles': os.path.isfile(subtitle_path),
-                        'has_thumbnails': os.path.isfile(thumbnail_path),
-                        'basename': basename,
-                        'has_cover': has_cover,
-                        'cover_path': os.path.join(rel_path, cover_path) if has_cover else None
+                        'name':
+                        item,
+                        'path':
+                        os.path.join(rel_path, item),
+                        'has_subtitles':
+                        os.path.isfile(subtitle_path),
+                        'has_thumbnails':
+                        os.path.isfile(thumbnail_path),
+                        'basename':
+                        basename,
+                        'has_cover':
+                        has_cover,
+                        'cover_path':
+                        os.path.join(rel_path, cover_path)
+                        if has_cover else None
                     })
+            return {'videos': videos, 'folders': folders}
     except Exception as e:
         logger.error(f"Error scanning directory: {e}")
-
-    return {'videos': videos, 'folders': folders}
     except Exception as e:
         logger.error(f"Error scanning video directory: {e}")
 
@@ -194,17 +207,18 @@ def save_usage_data(data):
 @app.route('/folder/<path:folder_path>')
 def index(folder_path=None):
     """Home page with video and folder listing"""
-    current_dir = os.path.join(VIDEO_DIRECTORY, folder_path) if folder_path else VIDEO_DIRECTORY
+    current_dir = os.path.join(VIDEO_DIRECTORY,
+                               folder_path) if folder_path else VIDEO_DIRECTORY
     if not os.path.exists(current_dir):
         flash("Ordner nicht gefunden", "error")
         return redirect(url_for('index'))
-        
+
     result = get_video_files(current_dir)
     return render_template('index.html',
-                         videos=result['videos'],
-                         folders=result['folders'],
-                         current_path=folder_path if folder_path else '',
-                         video_directory=VIDEO_DIRECTORY)
+                           videos=result['videos'],
+                           folders=result['folders'],
+                           current_path=folder_path if folder_path else '',
+                           video_directory=VIDEO_DIRECTORY)
 
 
 @app.route('/player/<path:video_name>')
@@ -290,6 +304,7 @@ def get_usage_data():
     usage_data = load_usage_data()
     return jsonify(usage_data)
 
+
 @app.route('/api/audio/start', methods=['POST'])
 def start_audio():
     """Start audio recording"""
@@ -298,6 +313,7 @@ def start_audio():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/api/audio/pause', methods=['POST'])
 def pause_audio():
@@ -308,6 +324,7 @@ def pause_audio():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+
 @app.route('/api/audio/resume', methods=['POST'])
 def resume_audio():
     """Resume audio recording"""
@@ -316,6 +333,7 @@ def resume_audio():
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
 
 @app.route('/api/audio/stop', methods=['POST'])
 def stop_audio():
