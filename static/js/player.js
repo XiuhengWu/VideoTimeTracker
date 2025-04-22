@@ -921,6 +921,85 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+    // Audio recording functionality
+    const toggleRecordingBtn = document.getElementById('toggle-recording');
+    const pauseRecordingBtn = document.getElementById('pause-recording');
+    const transcriptionText = document.getElementById('transcription-text');
+    let isRecording = false;
+    let isPaused = false;
+
+    if (toggleRecordingBtn && pauseRecordingBtn) {
+        toggleRecordingBtn.addEventListener('click', async function() {
+            if (!isRecording) {
+                // Start recording
+                try {
+                    const response = await fetch('/api/start_recording', { method: 'POST' });
+                    if (response.ok) {
+                        isRecording = true;
+                        toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme stoppen';
+                        toggleRecordingBtn.classList.remove('btn-primary');
+                        toggleRecordingBtn.classList.add('btn-danger');
+                        pauseRecordingBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                }
+            } else {
+                // Stop recording
+                try {
+                    const response = await fetch('/api/stop_recording', { method: 'POST' });
+                    const data = await response.json();
+                    if (response.ok) {
+                        isRecording = false;
+                        isPaused = false;
+                        toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">mic</i> Aufnahme starten';
+                        toggleRecordingBtn.classList.remove('btn-danger');
+                        toggleRecordingBtn.classList.add('btn-primary');
+                        pauseRecordingBtn.disabled = true;
+                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
+                        
+                        if (data.transcription) {
+                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error stopping recording:', error);
+                }
+            }
+        });
+
+        pauseRecordingBtn.addEventListener('click', async function() {
+            if (!isPaused) {
+                // Pause recording
+                try {
+                    const response = await fetch('/api/pause_recording', { method: 'POST' });
+                    const data = await response.json();
+                    if (response.ok) {
+                        isPaused = true;
+                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
+                        if (data.transcription) {
+                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error pausing recording:', error);
+                }
+            } else {
+                // Resume recording
+                try {
+                    const response = await fetch('/api/resume_recording', { method: 'POST' });
+                    if (response.ok) {
+                        isPaused = false;
+                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
+                    }
+                } catch (error) {
+                    console.error('Error resuming recording:', error);
+                }
+            }
+        });
+    }
+
+
         // Translate the current subtitle
         fetch('/api/translate', {
             method: 'POST',
