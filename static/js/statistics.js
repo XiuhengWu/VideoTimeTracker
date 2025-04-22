@@ -52,8 +52,42 @@ document.addEventListener('DOMContentLoaded', function() {
             usageData = data;
             updateCalendarView();
             renderChart(data);
+            updateStatistics(data);
         })
         .catch(error => console.error('Error loading usage data:', error));
+
+    function updateStatistics(data) {
+        const dates = Object.keys(data);
+        if (dates.length === 0) return;
+
+        // Calculate total time
+        const totalSeconds = Object.values(data).reduce((sum, seconds) => sum + seconds, 0);
+        const totalHours = Math.floor(totalSeconds / 3600);
+        const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+        document.getElementById('total-time').textContent = `${totalHours}h ${totalMinutes}m`;
+
+        // Calculate total visits (days)
+        document.getElementById('total-days').textContent = dates.length;
+
+        // Calculate visit rate
+        const firstDate = new Date(dates.sort()[0]);
+        const lastDate = new Date();
+        const totalDays = Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24)) + 1;
+        const visitRate = ((dates.length / totalDays) * 100).toFixed(1);
+        document.getElementById('visit-rate').textContent = `${visitRate}%`;
+
+        // Calculate max daily time
+        const maxSeconds = Math.max(...Object.values(data));
+        const maxHours = Math.floor(maxSeconds / 3600);
+        const maxMinutes = Math.floor((maxSeconds % 3600) / 60);
+        document.getElementById('max-daily-time').textContent = `${maxHours}h ${maxMinutes}m`;
+
+        // Calculate average daily time
+        const avgSeconds = totalSeconds / dates.length;
+        const avgHours = Math.floor(avgSeconds / 3600);
+        const avgMinutes = Math.floor((avgSeconds % 3600) / 60);
+        document.getElementById('avg-daily-time').textContent = `${avgHours}h ${avgMinutes}m`;
+    }
     
     // Update month display and regenerate calendar
     function updateCalendarView() {
