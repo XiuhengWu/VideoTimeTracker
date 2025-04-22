@@ -231,14 +231,14 @@ def index(folder_path=None):
 def player(video_name):
     """Video player page"""
     video_name = os.path.basename(video_name)
-    result = get_video_files()
-    videos = result['videos']
-    video = next((v for v in videos if v['name'] == video_name), None)
+    current_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_name))
+    result = get_video_files(current_dir)
+    video = next((v for v in result['videos'] if v['name'] == video_name), None)
 
     if not video:
         return redirect(url_for('index'))
 
-    return render_template('player.html', video=video, videos=videos)
+    return render_template('player.html', video=video, videos=result['videos'])
 
 
 @app.route('/videos/<path:filename>')
