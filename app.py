@@ -106,6 +106,9 @@ class AudioRecorder:
             recent_data = self.audio_data[-self.max_buffer_size:]
             audio = np.concatenate(recent_data)
             
+            # Convert to 1D float32 array as required by Whisper
+            audio = audio.flatten().astype(np.float32)
+            
             # Transcribe using Whisper
             result = self.model.transcribe(audio)
             transcription = result["text"].strip()
