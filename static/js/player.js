@@ -29,23 +29,26 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     // Copy functionality
-    // Function to compare texts and highlight differences
+    // Function to compare texts and highlight differences using diff-match-patch
     function highlightDifferences(original, improved) {
-        const words1 = original.split(/\s+/);
-        const words2 = improved.split(/\s+/);
-        const result = [];
+        const dmp = new diff_match_patch();
+        const diffs = dmp.diff_main(original, improved);
+        dmp.diff_cleanupSemantic(diffs);
         
-        for (let i = 0; i < words2.length; i++) {
-            if (i < words1.length && words1[i] !== words2[i]) {
-                result.push(`<span class="text-success" title="Original: ${words1[i]}">${words2[i]}</span>`);
-            } else if (i >= words1.length) {
-                result.push(`<span class="text-success">${words2[i]}</span>`);
-            } else {
-                result.push(words2[i]);
+        let result = '';
+        for (let diff of diffs) {
+            const [type, text] = diff;
+            const escapedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            if (type === 0) { // No change
+                result += escapedText;
+            } else if (type === 1) { // Addition
+                result += `<span class="text-success">${escapedText}</span>`;
+            } else if (type === -1) { // Deletion
+                result += `<span class="text-danger text-decoration-line-through">${escapedText}</span>`;
             }
         }
-        
-        return result.join(' ');
+        return result;
     }
 
     const pasteBtn = document.createElement('button');
