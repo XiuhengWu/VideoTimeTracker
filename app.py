@@ -42,7 +42,7 @@ class AudioRecorder:
 
     def load_model(self):
         if self.model is None:
-            self.model = whisper.load_model("tiny")
+            self.model = whisper.load_model("tiny", device="cpu") # Load on CPU
 
     def audio_callback(self, indata, frames, time_info, status):
         if status:
@@ -112,7 +112,7 @@ class AudioRecorder:
             audio = audio.flatten().astype(np.float32)
 
             # Transcribe using Whisper
-            result = self.model.transcribe(audio)
+            result = self.model.transcribe(audio, language="de")
             logger.debug(f"Transcribing {len(audio)} samples")
             logger.debug(f"Transcription result: {result}")
             transcription = result["text"].strip()
