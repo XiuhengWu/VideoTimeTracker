@@ -34,12 +34,12 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         const dmp = new diff_match_patch();
         const diffs = dmp.diff_main(original, improved);
         dmp.diff_cleanupSemantic(diffs);
-        
+
         let result = '';
         for (let diff of diffs) {
             const [type, text] = diff;
             const escapedText = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            
+
             if (type === 0) { // No change
                 result += escapedText;
             } else if (type === 1) { // Addition
@@ -79,14 +79,14 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     // Bei ungültigem Format den gesamten Text als Hinweis anzeigen
                     document.getElementById('improved-text').innerHTML = '';
                     document.getElementById('additional-hint').textContent = text;
-                    
+
                     // Feedback anzeigen
                     alert('Ungültiges Format: Text muss durch "------" getrennt sein');
                     return;
                 }
                 const improvedText = parts[0].replace(/```/g, '').trim();
                 const additionalHint = parts[1].replace(/```/g, '').trim();
-                
+
                 // Konvertiere Zeilenumbrüche in <br> Tags
                 const formattedImprovedText = improvedText.replace(/\n/g, '<br>');
                 document.getElementById('improved-text').innerHTML = 
@@ -463,7 +463,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
 
             if (track) {
                 // A key - previous subtitle or restart current
-                if (e.key === 'a' || e.key === 'A') {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
                     e.preventDefault();
                     let activeCue = null;
                     let previousCue = null;
@@ -484,7 +484,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     }
                 } 
                 // D key - next subtitle
-                else if (e.key === 'd' || e.key === 'D') {
+                else if (e.ctrlKey && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
                     e.preventDefault();
                     for (let i = 0; i < track.cues.length; i++) {
                         if (player.currentTime < track.cues[i].startTime) {
@@ -724,67 +724,67 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     // Handle keyboard navigation for subtitles
-    document.addEventListener('keydown', function(e) {
-        // Only process if player exists and is loaded
-        if (!player || !player.ready) return;
+    // document.addEventListener('keydown', function(e) {
+    //     // Only process if player exists and is loaded
+    //     if (!player || !player.ready) return;
 
-        // Get subtitle tracks
-        const track = videoElement.textTracks && videoElement.textTracks.length > 0 ? 
-                     videoElement.textTracks[0] : null;
+    //     // Get subtitle tracks
+    //     const track = videoElement.textTracks && videoElement.textTracks.length > 0 ? 
+    //                  videoElement.textTracks[0] : null;
 
-        if (track) {
-            // A key - previous subtitle or restart current
-            if (e.key === 'a' || e.key === 'A') {
-                e.preventDefault();
+    //     if (track) {
+    //         // A key - previous subtitle or restart current
+    //         if (e.key === 'a' || e.key === 'A') {
+    //             e.preventDefault();
 
-                // Get active cue
-                let activeCue = null;
-                let previousCue = null;
+    //             // Get active cue
+    //             let activeCue = null;
+    //             let previousCue = null;
 
-                // Find active and previous cues
-                for (let i = 0; i < track.cues.length; i++) {
-                    const cue = track.cues[i];
-                    if (player.currentTime >= cue.startTime && player.currentTime <= cue.endTime) {
-                        activeCue = cue;
-                        previousCue = i > 0 ? track.cues[i - 1] : null;
-                        break;
-                    } else if (player.currentTime < cue.startTime) {
-                        // If we're past all previous cues
-                        if (i > 0) {
-                            previousCue = track.cues[i - 1];
-                        }
-                        break;
-                    }
+    //             // Find active and previous cues
+    //             for (let i = 0; i < track.cues.length; i++) {
+    //                 const cue = track.cues[i];
+    //                 if (player.currentTime >= cue.startTime && player.currentTime <= cue.endTime) {
+    //                     activeCue = cue;
+    //                     previousCue = i > 0 ? track.cues[i - 1] : null;
+    //                     break;
+    //                 } else if (player.currentTime < cue.startTime) {
+    //                     // If we're past all previous cues
+    //                     if (i > 0) {
+    //                         previousCue = track.cues[i - 1];
+    //                     }
+    //                     break;
+    //                 }
 
-                    // If this is the last cue and we're past it
-                    if (i === track.cues.length - 1) {
-                        previousCue = cue;
-                    }
-                }
+    //                 // If this is the last cue and we're past it
+    //                 if (i === track.cues.length - 1) {
+    //                     previousCue = cue;
+    //                 }
+    //             }
 
-                // Logic for jumping
-                if (activeCue && player.currentTime >= activeCue.startTime + 1) {
-                    // If more than 1 second into current cue, jump to start of current cue
-                    player.currentTime = activeCue.startTime;
-                } else if (previousCue) {
-                    // Jump to previous cue
-                    player.currentTime = previousCue.startTime;
-                }
-            } 
-            // Q key - next subtitle
-            else if (e.key === 'd' || e.key === 'D') {
-                e.preventDefault();
+    //             // Logic for jumping
+    //             if (activeCue && player.currentTime >= activeCue.startTime + 1) {
+    //                 // If more than 1 second into current cue, jump to start of current cue
+    //                 player.currentTime = activeCue.startTime;
+    //             } else if (previousCue) {
+    //                 // Jump to previous cue
+    //                 player.currentTime = previousCue.startTime;
+    //             }
+    //         } 
+    //         // Q key - next subtitle
+    //         else if (e.key === 'd' || e.key === 'D') {
+    //             e.preventDefault();
 
-                // Find next cue
-                for (let i = 0; i < track.cues.length; i++) {
-                    if (player.currentTime < track.cues[i].startTime) {
-                        player.currentTime = track.cues[i].startTime;
-                        break;
-                    }
-                }
-            }
-        }
-    });
+    //             // Find next cue
+    //             for (let i = 0; i < track.cues.length; i++) {
+    //                 if (player.currentTime < track.cues[i].startTime) {
+    //                     player.currentTime = track.cues[i].startTime;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // });
 
     // Update timestamp display when playing
     player.on('timeupdate', function() {
