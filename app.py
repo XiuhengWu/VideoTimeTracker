@@ -34,8 +34,13 @@ class AudioRecorder:
         self.silence_threshold = 0.01
         self.sample_rate = 16000
         self.channels = 1
-        self.model = whisper.load_model("tiny")
+        self.model = None  # Load model only when needed
         self.recording_thread = None
+        self.max_buffer_size = 30  # Max seconds of audio to process at once
+        
+    def load_model(self):
+        if self.model is None:
+            self.model = whisper.load_model("tiny")
 
     def audio_callback(self, indata, frames, time_info, status):
         if status:
@@ -93,17 +98,25 @@ class AudioRecorder:
         if not self.audio_data:
             return ""
             
-        # Convert audio data to numpy array
-        audio = np.concatenate(self.audio_data)
-        
-        # Transcribe using Whisper
-        result = self.model.transcribe(audio)
-        transcription = result["text"].strip()
-        
-        # Clear the current segment
-        self.audio_data = []
-        
-        return transcription
+        try:
+            # Load model if needed
+            self.load_model()
+            
+            # Convert recent audio data to numpy array (last 30 seconds)
+            recent_data = self.audio_data[-self.max_buffer_size:]
+            audio = np.concatenate(recent_data)
+            
+            # Transcribe using Whisper
+            result = self.model.transcribe(audio)
+            transcription = result["text"].strip()
+            
+            # Keep only the most recent buffer
+            self.audio_data = self.audio_data[-self.max_buffer_size:]
+            
+            return transcription
+        except Exception as e:
+            logger.error(f"Transcription error: {e}")
+            return "Fehler bei der Transkription"
 
 # Initialize the audio recorder
 audio_recorder = AudioRecorder()
