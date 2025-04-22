@@ -49,9 +49,9 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     const pasteBtn = document.createElement('button');
-    pasteBtn.className = 'btn btn-outline-secondary ms-2';
+    pasteBtn.className = 'btn btn-outline-secondary';
     pasteBtn.innerHTML = '<i class="material-icons align-middle">content_paste</i> Einfügen';
-    copyPromptBtn.parentNode.appendChild(pasteBtn);
+    copyPromptBtn.insertAdjacentElement('afterend', pasteBtn);
 
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
@@ -70,9 +70,13 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     if (pasteBtn) {
         pasteBtn.addEventListener('click', function() {
             navigator.clipboard.readText().then(text => {
-                const parts = text.split('```')[1].split('\n\n------\n\n');
-                const improvedText = parts[0].trim();
-                const additionalHint = parts[1].trim();
+                const matches = text.match(/```\n([\s\S]*?)\n\n------\n\n([\s\S]*?)```/);
+                if (!matches) {
+                    alert('Ungültiges Format des einzufügenden Textes');
+                    return;
+                }
+                const improvedText = matches[1].trim();
+                const additionalHint = matches[2].trim();
                 
                 document.getElementById('improved-text').innerHTML = 
                     highlightDifferences(transcriptionText.value, improvedText);
