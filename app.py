@@ -36,7 +36,7 @@ class AudioRecorder:
         self.stream = None
         self.frames = []
         self.is_recording = False
-        self.whisper_model = whisper.load_model("tiny")
+        self.whisper_model = whisper.load_model("tiny", device="cpu")
         self.lock = threading.Lock()
 
     def start_recording(self):
@@ -92,7 +92,7 @@ class AudioRecorder:
             
             try:
                 # Transcribe using Whisper
-                result = self.whisper_model.transcribe(audio_data)
+                result = self.whisper_model.transcribe(audio_data, language="de")
                 return result["text"].strip()
             except Exception as e:
                 logger.error(f"Error transcribing audio: {e}")

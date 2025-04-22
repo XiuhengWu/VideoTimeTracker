@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.transcription) {
-                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                            transcriptionText.value += (transcriptionText.value ? ' ' : '') + data.transcription;
                         }
                         isRecording = false;
                         isPaused = false;
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.transcription) {
-                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                            transcriptionText.value += (transcriptionText.value ? ' ' : '') + data.transcription;
                         }
                         isPaused = true;
                         pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
@@ -920,7 +920,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 this.appendChild(tooltip);
 
-                // Get word explanation
+                // Get wordexplanation
                 fetchWordExplanation(wordText, tooltip);
             });
         });
