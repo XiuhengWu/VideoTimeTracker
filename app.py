@@ -24,6 +24,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET",
                                 "devkey-replace-in-production")
 
+@app.before_request
+def load_last_directory():
+    global VIDEO_DIRECTORY
+    last_directory = request.cookies.get('last_directory')
+    if last_directory and os.path.isdir(last_directory):
+        VIDEO_DIRECTORY = last_directory
+
 # Audio recording configuration
 CHUNK = 1024
 FORMAT = pyaudio.paFloat32
@@ -358,19 +365,25 @@ def set_directory():
     """Change the video directory"""
     global VIDEO_DIRECTORY
     new_directory = request.form.get('directory')
+    last_directory = request.cookies.get('last_directory')
 
     if new_directory and os.path.isdir(new_directory):
         VIDEO_DIRECTORY = new_directory
+        response = redirect(url_for('index'))
+        response.set_cookie('last_directory', new_directory)
+        return response
     else:
         try:
             # Try to create the directory if it doesn't exist
             os.makedirs(new_directory, exist_ok=True)
             VIDEO_DIRECTORY = new_directory
+            response = redirect(url_for('index'))
+            response.set_cookie('last_directory', new_directory)
+            return response
         except Exception as e:
             logger.error(f"Error creating directory: {e}")
             flash(f"Fehler beim Erstellen des Verzeichnisses: {e}", "error")
-
-    return redirect(url_for('index'))
+            return redirect(url_for('index'))
 
 
 @app.route('/api/get_subtitles/<video_basename>')
