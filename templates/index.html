@@ -87,7 +87,45 @@
             </div>
         </div>
         
+        {% if current_path %}
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                {% set paths = current_path.split('/') %}
+                {% for p in paths %}
+                    {% if loop.last %}
+                        <li class="breadcrumb-item active">{{ p }}</li>
+                    {% else %}
+                        <li class="breadcrumb-item">
+                            <a href="{{ url_for('index', folder_path='/'.join(paths[:loop.index])) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        </nav>
+        {% endif %}
+
         <div class="row">
+            {% if folders %}
+                {% for folder in folders %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <div class="folder-thumbnail">
+                            <i class="material-icons" style="font-size: 48px;">folder</i>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ folder.name }}</h5>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('index', folder_path=folder.path) }}" class="btn btn-primary w-100">
+                                <i class="material-icons align-middle">folder_open</i> Öffnen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
             {% if videos %}
                 {% for video in videos %}
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">

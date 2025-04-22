@@ -120,46 +120,49 @@ def allowed_file(filename):
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_video_files():
-    """Scan directory for video files"""
+def get_video_files(current_dir=None):
+    """Scan directory for video files and folders"""
     videos = []
+    folders = []
     valid_extensions = ['.mp4', '.webm', '.ogg', '.mov', '.mkv']
+    
+    scan_dir = current_dir if current_dir else VIDEO_DIRECTORY
+    rel_path = os.path.relpath(scan_dir, VIDEO_DIRECTORY) if current_dir else ''
 
     try:
-        for filename in os.listdir(VIDEO_DIRECTORY):
-            filepath = os.path.join(VIDEO_DIRECTORY, filename)
-            if os.path.isfile(filepath):
-                ext = os.path.splitext(filename)[1].lower()
+        for item in os.listdir(scan_dir):
+            filepath = os.path.join(scan_dir, item)
+            if os.path.isdir(filepath):
+                folders.append({
+                    'name': item,
+                    'path': os.path.join(rel_path, item)
+                })
+            elif os.path.isfile(filepath):
+                ext = os.path.splitext(item)[1].lower()
                 if ext in valid_extensions:
-                    basename = os.path.splitext(filename)[0]
-
+                    basename = os.path.splitext(item)[0]
+                    
                     # Check for subtitle and thumbnail files
-                    subtitle_path = os.path.join(VIDEO_DIRECTORY,
-                                                 f"{basename}-subtitles.vtt")
-                    thumbnail_path = os.path.join(
-                        VIDEO_DIRECTORY, f"{basename}-thumbnails.vtt")
-
-                    # Check for cover image (same basename with .jpg extension)
+                    subtitle_path = os.path.join(scan_dir, f"{basename}-subtitles.vtt")
+                    thumbnail_path = os.path.join(scan_dir, f"{basename}-thumbnails.vtt")
+                    
+                    # Check for cover image
                     cover_path = f"{basename}.jpg"
-                    has_cover = os.path.isfile(
-                        os.path.join(VIDEO_DIRECTORY, cover_path))
-
+                    has_cover = os.path.isfile(os.path.join(scan_dir, cover_path))
+                    
                     videos.append({
-                        'name':
-                        filename,
-                        'path':
-                        filepath,
-                        'has_subtitles':
-                        os.path.isfile(subtitle_path),
-                        'has_thumbnails':
-                        os.path.isfile(thumbnail_path),
-                        'basename':
-                        basename,
-                        'has_cover':
-                        has_cover,
-                        'cover_path':
-                        cover_path if has_cover else None
+                        'name': item,
+                        'path': os.path.join(rel_path, item),
+                        'has_subtitles': os.path.isfile(subtitle_path),
+                        'has_thumbnails': os.path.isfile(thumbnail_path),
+                        'basename': basename,
+                        'has_cover': has_cover,
+                        'cover_path': os.path.join(rel_path, cover_path) if has_cover else None
                     })
+    except Exception as e:
+        logger.error(f"Error scanning directory: {e}")
+
+    return {'videos': videos, 'folders': folders}
     except Exception as e:
         logger.error(f"Error scanning video directory: {e}")
 
@@ -188,13 +191,20 @@ def save_usage_data(data):
 
 
 @app.route('/')
-def index():
-    """Home page with video listing"""
-    videos = get_video_files()
-    # Pass the video directory path to the template
+@app.route('/folder/<path:folder_path>')
+def index(folder_path=None):
+    """Home page with video and folder listing"""
+    current_dir = os.path.join(VIDEO_DIRECTORY, folder_path) if folder_path else VIDEO_DIRECTORY
+    if not os.path.exists(current_dir):
+        flash("Ordner nicht gefunden", "error")
+        return redirect(url_for('index'))
+        
+    result = get_video_files(current_dir)
     return render_template('index.html',
-                           videos=videos,
-                           video_directory=VIDEO_DIRECTORY)
+                         videos=result['videos'],
+                         folders=result['folders'],
+                         current_path=folder_path if folder_path else '',
+                         video_directory=VIDEO_DIRECTORY)
 
 
 @app.route('/player/<path:video_name>')
