@@ -3,6 +3,7 @@ run = "python main.py"
 
 [nix]
 channel = "stable-24_05"
+packages = ["portaudio"]
 
 [[ports]]
 localPort = 5000
