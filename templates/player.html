@@ -308,15 +308,25 @@
                             <h5 class="mb-0">Audioaufnahme & Transkription</h5>
                         </div>
                         <div class="card-body">
-                            <div class="d-flex gap-2 mb-3">
-                                <button id="toggle-recording" class="btn btn-primary">
-                                    <i class="material-icons align-middle">mic</i>
-                                    Aufnahme starten
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex gap-2">
+                                    <button id="toggle-recording" class="btn btn-primary">
+                                        <i class="material-icons align-middle">mic</i>
+                                        Aufnahme starten
+                                    </button>
+                                    <button id="pause-recording" class="btn btn-warning" disabled>
+                                        <i class="material-icons align-middle">pause</i>
+                                        Pause
+                                    </button>
+                                </div>
+                                <button id="copy-prompt" class="btn btn-outline-secondary">
+                                    <i class="material-icons align-middle">content_copy</i>
+                                    Kopieren
                                 </button>
-                                <button id="pause-recording" class="btn btn-warning" disabled>
-                                    <i class="material-icons align-middle">pause</i>
-                                    Pause
-                                </button>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="prompt-text">Prompt</label>
+                                <textarea id="prompt-text" class="form-control" rows="3" readonly></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="transcription-text">Transkription</label>
