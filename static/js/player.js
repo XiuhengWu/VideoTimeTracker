@@ -29,6 +29,30 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     // Copy functionality
+    // Function to compare texts and highlight differences
+    function highlightDifferences(original, improved) {
+        const words1 = original.split(/\s+/);
+        const words2 = improved.split(/\s+/);
+        const result = [];
+        
+        for (let i = 0; i < words2.length; i++) {
+            if (i < words1.length && words1[i] !== words2[i]) {
+                result.push(`<span class="text-success" title="Original: ${words1[i]}">${words2[i]}</span>`);
+            } else if (i >= words1.length) {
+                result.push(`<span class="text-success">${words2[i]}</span>`);
+            } else {
+                result.push(words2[i]);
+            }
+        }
+        
+        return result.join(' ');
+    }
+
+    const pasteBtn = document.createElement('button');
+    pasteBtn.className = 'btn btn-outline-secondary ms-2';
+    pasteBtn.innerHTML = '<i class="material-icons align-middle">content_paste</i> Einfügen';
+    copyPromptBtn.parentNode.appendChild(pasteBtn);
+
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
             const combinedText = promptText.value + '\n\n' + transcriptionText.value;
@@ -36,6 +60,27 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 // Visual feedback
                 const originalText = this.innerHTML;
                 this.innerHTML = '<i class="material-icons align-middle">check</i> Kopiert';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+    }
+
+    if (pasteBtn) {
+        pasteBtn.addEventListener('click', function() {
+            navigator.clipboard.readText().then(text => {
+                const parts = text.split('```')[1].split('\n\n------\n\n');
+                const improvedText = parts[0].trim();
+                const additionalHint = parts[1].trim();
+                
+                document.getElementById('improved-text').innerHTML = 
+                    highlightDifferences(transcriptionText.value, improvedText);
+                document.getElementById('additional-hint').textContent = additionalHint;
+
+                // Visual feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="material-icons align-middle">check</i> Eingefügt';
                 setTimeout(() => {
                     this.innerHTML = originalText;
                 }, 2000);

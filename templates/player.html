@@ -328,9 +328,23 @@
                                 <label for="prompt-text">Prompt</label>
                                 <textarea id="prompt-text" class="form-control" rows="3" readonly></textarea>
                             </div>
-                            <div class="form-group">
-                                <label for="transcription-text">Transkription</label>
-                                <textarea id="transcription-text" class="form-control" rows="5"></textarea>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="transcription-text">Transkription</label>
+                                        <textarea id="transcription-text" class="form-control" rows="5"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="improved-text">Verbesserter Text</label>
+                                        <div id="improved-text" class="form-control" style="height: 130px; overflow-y: auto;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="additional-hint">Zusätzlicher Hinweis</label>
+                                <div id="additional-hint" class="form-control" style="min-height: 50px;"></div>
                             </div>
                         </div>
                     </div>
