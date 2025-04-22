@@ -58,20 +58,33 @@ class AudioRecorder:
                 self.last_silence = current_time
 
     def start_recording(self):
-        self.recording = True
-        self.paused = False
-        self.audio_data = []
-        self.last_silence = time.time()
-        
-        def record_thread():
-            with sd.InputStream(callback=self.audio_callback,
-                              channels=self.channels,
-                              samplerate=self.sample_rate):
-                while self.recording:
-                    if not self.audio_queue.empty():
-                        audio_chunk = self.audio_queue.get()
-                        self.audio_data.append(audio_chunk)
-                    time.sleep(0.1)
+        try:
+            # Check if any input devices are available
+            devices = sd.query_devices()
+            input_devices = [d for d in devices if d['max_input_channels'] > 0]
+            
+            if not input_devices:
+                raise RuntimeError("No audio input devices found")
+                
+            self.recording = True
+            self.paused = False
+            self.audio_data = []
+            self.last_silence = time.time()
+            
+            def record_thread():
+                try:
+                    with sd.InputStream(device=input_devices[0]['index'],
+                                      callback=self.audio_callback,
+                                      channels=self.channels,
+                                      samplerate=self.sample_rate):
+                        while self.recording:
+                            if not self.audio_queue.empty():
+                                audio_chunk = self.audio_queue.get()
+                                self.audio_data.append(audio_chunk)
+                            time.sleep(0.1)
+                except Exception as e:
+                    logger.error(f"Audio recording error: {e}")
+                    self.recording = False
 
         self.recording_thread = threading.Thread(target=record_thread)
         self.recording_thread.start()
@@ -417,7 +430,10 @@ def start_recording():
         return jsonify({'success': True})
     except Exception as e:
         logger.error(f"Error starting recording: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({
+            'success': False, 
+            'error': 'Kein Mikrofon gefunden oder Zugriff nicht möglich.'
+        })
 
 @app.route('/api/pause_recording', methods=['POST'])
 def pause_recording():
