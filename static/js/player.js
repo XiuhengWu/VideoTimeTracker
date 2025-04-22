@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoName = videoElement ? videoElement.dataset.basename : '';
 
     // Set initial prompt text
-    const defaultPrompt = `Um mein Deutsch zu üben, versuche ich, einen Teil des Videos ${videoName} nachzuerzählen. Der folgende Text ist meine Nacherzählung. Da er mithilfe eines TTS-Tools transkribiert wurde, können einige Fehler enthalten sein. Du sollst nun versuchen, meine Nacherzählung zu verstehen und sie in eine schöne, natürliche und flüssige Sprache umzuwandeln. Achte bitte darauf, dass der Text auf dem Sprachniveau B2 (höchstens C1) bleibt, nicht zu schriftlich klingt und – wenn es passt – ein paar gängige Redewendungen oder idiomatische Ausdrücke verwendet werden. Gib mir anschließend den verbesserten Text und einen zusätzlichen Hinweis in einem Codeblock aus. Das Format muss wie folgt aussehen:
+    const defaultPrompt = `Um mein Deutsch zu üben, versuche ich, einen Teil des Videos "${videoName}" nachzuerzählen. Der folgende Text ist meine Nacherzählung. Da er mithilfe eines TTS-Tools transkribiert wurde, können einige Fehler enthalten sein. Du sollst nun versuchen, meine Nacherzählung zu verstehen und sie in eine schöne, natürliche und flüssige Sprache umzuwandeln. Achte bitte darauf, dass der Text auf dem Sprachniveau B2 (höchstens C1) bleibt, nicht zu schriftlich klingt und – wenn es passt – ein paar gängige Redewendungen oder idiomatische Ausdrücke verwendet werden. Gib mir anschließend den verbesserten Text und einen zusätzlichen Hinweis in einem Codeblock aus. Das Format muss wie folgt aussehen:
 
 \`\`\`
 {{verbesserter Text}}
@@ -342,7 +342,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     }
 
     // Initialize player
-    const videoElement = document.getElementById('player');
+    // videoElement = document.getElementById('player');
 
     if (!videoElement) return;
 
