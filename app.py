@@ -37,7 +37,7 @@ class AudioRecorder:
         self.model = whisper.load_model("tiny")
         self.recording_thread = None
 
-    def audio_callback(self, indata, frames, time, status):
+    def audio_callback(self, indata, frames, time_info, status):
         if status:
             logger.warning(f"Audio callback status: {status}")
         if self.recording and not self.paused:
@@ -47,7 +47,7 @@ class AudioRecorder:
             # Check for silence
             volume_norm = np.linalg.norm(audio_chunk) / frames
             if volume_norm < self.silence_threshold:
-                current_time = time.time()
+                current_time = time.time()  # Use Python's time module
                 if current_time - self.last_silence > 1.0 and self.audio_data:
                     self.transcribe_current_segment()
                 self.last_silence = current_time
