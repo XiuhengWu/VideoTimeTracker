@@ -173,13 +173,12 @@ def get_video_files(current_dir=None):
                         os.path.join(rel_path, cover_path)
                         if has_cover else None
                     })
-            return {'videos': videos, 'folders': folders}
+
     except Exception as e:
         logger.error(f"Error scanning directory: {e}")
-    except Exception as e:
-        logger.error(f"Error scanning video directory: {e}")
+        return {'videos': [], 'folders': []}
 
-    return videos
+    return {'videos': videos, 'folders': folders}
 
 
 def load_usage_data():
