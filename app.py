@@ -230,14 +230,20 @@ def index(folder_path=None):
 @app.route('/player/<path:video_name>')
 def player(video_name):
     """Video player page"""
-    video_name = os.path.basename(video_name)
-    current_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_name))
-    result = get_video_files(current_dir)
-    video = next((v for v in result['videos'] if v['name'] == video_name), None)
+    # Get the full path relative to VIDEO_DIRECTORY
+    video_rel_path = video_name
+    video_basename = os.path.basename(video_name)
+    video_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_rel_path))
+    
+    result = get_video_files(video_dir)
+    video = next((v for v in result['videos'] if v['name'] == video_basename), None)
 
     if not video:
         return redirect(url_for('index'))
 
+    # Update video path to maintain the full relative path
+    video['name'] = video_rel_path
+    
     return render_template('player.html', video=video, videos=result['videos'])
 
 
