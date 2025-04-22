@@ -34,19 +34,13 @@ class AudioRecorder:
         self.silence_threshold = 0.01
         self.sample_rate = 16000
         self.channels = 1
-        self.model = None
+        self.model = None  # Load model only when needed
         self.recording_thread = None
-        self.max_buffer_size = 30
-
+        self.max_buffer_size = 30  # Max seconds of audio to process at once
+        
     def load_model(self):
-        """Load the Whisper model if not already loaded"""
         if self.model is None:
-            try:
-                self.model = whisper.load_model("tiny")  # Using tiny model for efficiency
-                logger.info("Whisper model loaded successfully")
-            except Exception as e:
-                logger.error(f"Error loading Whisper model: {e}")
-                raise
+            self.model = whisper.load_model("tiny")
 
     def audio_callback(self, indata, frames, time_info, status):
         if status:
@@ -54,11 +48,11 @@ class AudioRecorder:
         if self.recording and not self.paused:
             audio_chunk = indata.copy()
             self.audio_queue.put(audio_chunk)
-
+            
             # Check for silence
             volume_norm = np.linalg.norm(audio_chunk) / frames
             if volume_norm < self.silence_threshold:
-                current_time = time.time()
+                current_time = time.time()  # Use Python's time module
                 if current_time - self.last_silence > 1.0 and self.audio_data:
                     self.transcribe_current_segment()
                 self.last_silence = current_time
@@ -68,7 +62,7 @@ class AudioRecorder:
         self.paused = False
         self.audio_data = []
         self.last_silence = time.time()
-
+        
         def record_thread():
             with sd.InputStream(callback=self.audio_callback,
                               channels=self.channels,
@@ -103,37 +97,26 @@ class AudioRecorder:
     def transcribe_current_segment(self):
         if not self.audio_data:
             return ""
-
+            
         try:
             # Load model if needed
             self.load_model()
-
+            
             # Convert recent audio data to numpy array (last 30 seconds)
             recent_data = self.audio_data[-self.max_buffer_size:]
             audio = np.concatenate(recent_data)
-
+            
             # Transcribe using Whisper
             result = self.model.transcribe(audio)
             transcription = result["text"].strip()
-
+            
             # Keep only the most recent buffer
             self.audio_data = self.audio_data[-self.max_buffer_size:]
-
+            
             return transcription
         except Exception as e:
             logger.error(f"Transcription error: {e}")
             return "Fehler bei der Transkription"
-
-    def transcribe_audio(self, audio_data):
-        """Transcribe audio data using Whisper"""
-        try:
-            self.load_model()  # Ensure model is loaded
-            result = self.model.transcribe(audio_data)
-            return result["text"].strip()
-        except Exception as e:
-            logger.error(f"Transcription error: {e}")
-            return "Fehler bei der Transkription"
-
 
 # Initialize the audio recorder
 audio_recorder = AudioRecorder()
