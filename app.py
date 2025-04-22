@@ -231,7 +231,8 @@ def index(folder_path=None):
 def player(video_name):
     """Video player page"""
     video_name = os.path.basename(video_name)
-    videos = get_video_files()
+    result = get_video_files()
+    videos = result['videos']
     video = next((v for v in videos if v['name'] == video_name), None)
 
     if not video:
