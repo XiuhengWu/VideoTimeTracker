@@ -70,22 +70,25 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     if (pasteBtn) {
         pasteBtn.addEventListener('click', function() {
             navigator.clipboard.readText().then(text => {
-                const matches = text.match(/```\n([\s\S]*?)\n\n------\n\n([\s\S]*?)```/);
-                if (!matches) {
+                // Extrahiere Text zwischen der Markierung "------"
+                const parts = text.split(/\n*------\n*/);
+                if (parts.length !== 2) {
                     // Bei ungültigem Format den gesamten Text als Hinweis anzeigen
                     document.getElementById('improved-text').innerHTML = '';
                     document.getElementById('additional-hint').textContent = text;
                     
                     // Feedback anzeigen
-                    alert('Ungültiges Format: Der Text sollte in Codeblocks (```) eingeschlossen sein');
+                    alert('Ungültiges Format: Text muss durch "------" getrennt sein');
                     return;
                 }
-                const improvedText = matches[1].trim();
+                const improvedText = parts[0].replace(/```/g, '').trim();
                 const additionalHint = matches[2].trim();
                 
+                // Konvertiere Zeilenumbrüche in <br> Tags
+                const formattedImprovedText = improvedText.replace(/\n/g, '<br>');
                 document.getElementById('improved-text').innerHTML = 
-                    highlightDifferences(transcriptionText.value, improvedText);
-                document.getElementById('additional-hint').textContent = additionalHint;
+                    highlightDifferences(transcriptionText.value, formattedImprovedText);
+                document.getElementById('additional-hint').innerHTML = parts[1].replace(/```/g, '').trim().replace(/\n/g, '<br>');
 
                 // Visual feedback
                 const originalText = this.innerHTML;
