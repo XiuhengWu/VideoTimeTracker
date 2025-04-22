@@ -82,13 +82,13 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     return;
                 }
                 const improvedText = parts[0].replace(/```/g, '').trim();
-                const additionalHint = matches[2].trim();
+                const additionalHint = parts[1].replace(/```/g, '').trim();
                 
                 // Konvertiere Zeilenumbrüche in <br> Tags
                 const formattedImprovedText = improvedText.replace(/\n/g, '<br>');
                 document.getElementById('improved-text').innerHTML = 
                     highlightDifferences(transcriptionText.value, formattedImprovedText);
-                document.getElementById('additional-hint').innerHTML = parts[1].replace(/```/g, '').trim().replace(/\n/g, '<br>');
+                document.getElementById('additional-hint').innerHTML = additionalHint.replace(/\n/g, '<br>');
 
                 // Visual feedback
                 const originalText = this.innerHTML;
