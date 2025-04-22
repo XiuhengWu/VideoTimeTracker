@@ -2,6 +2,71 @@
  * Player module for handling video playback, subtitle navigation and timestamp marking
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Audio recording controls
+    const toggleRecordingBtn = document.getElementById('toggle-recording');
+    const pauseRecordingBtn = document.getElementById('pause-recording');
+    const transcriptionText = document.getElementById('transcription-text');
+    let isRecording = false;
+    let isPaused = false;
+
+    if (toggleRecordingBtn && pauseRecordingBtn) {
+        toggleRecordingBtn.addEventListener('click', function() {
+            if (!isRecording) {
+                // Start recording
+                fetch('/api/audio/start', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            isRecording = true;
+                            isPaused = false;
+                            toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
+                            toggleRecordingBtn.className = 'btn btn-danger';
+                            pauseRecordingBtn.disabled = false;
+                        }
+                    });
+            } else {
+                // Stop recording
+                fetch('/api/audio/stop', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.transcription) {
+                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                        }
+                        isRecording = false;
+                        isPaused = false;
+                        toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">mic</i> Aufnahme starten';
+                        toggleRecordingBtn.className = 'btn btn-primary';
+                        pauseRecordingBtn.disabled = true;
+                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
+                    });
+            }
+        });
+
+        pauseRecordingBtn.addEventListener('click', function() {
+            if (!isPaused) {
+                // Pause recording
+                fetch('/api/audio/pause', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.transcription) {
+                            transcriptionText.value += (transcriptionText.value ? '\n' : '') + data.transcription;
+                        }
+                        isPaused = true;
+                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
+                    });
+            } else {
+                // Resume recording
+                fetch('/api/audio/resume', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            isPaused = false;
+                            pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
+                        }
+                    });
+            }
+        });
+    }
     // Subtitle blocker functionality
     const blockers = new Map();
     let blockerId = 0;
