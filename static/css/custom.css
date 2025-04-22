@@ -34,9 +34,13 @@
     padding: var(--content-spacing);
 }
 
+#copy-prompt {
+    margin-left: auto;
+    margin-right: .5rem !important;
+}
+
 /* Modern navbar */
 .navbar {
-    backdrop-filter: blur(10px);
     background-color: rgba(var(--bs-body-bg-rgb), 0.7);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding: 0.25rem var(--content-spacing);
@@ -598,9 +602,17 @@
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 /* Responsive adjustments */
