@@ -79,8 +79,9 @@ class AudioRecorder:
             if self.stream:
                 self.stream.stop_stream()
                 self.stream.close()
-            self.audio.terminate()
-            return self.transcribe_audio()
+            result = self.transcribe_audio()
+            self.frames = []  # Clear frames
+            return result
 
     def transcribe_audio(self):
         if not self.frames:
