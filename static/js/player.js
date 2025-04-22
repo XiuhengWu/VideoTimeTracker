@@ -5,7 +5,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // Audio recording controls
     const toggleRecordingBtn = document.getElementById('toggle-recording');
     const pauseRecordingBtn = document.getElementById('pause-recording');
+    const copyPromptBtn = document.getElementById('copy-prompt');
+    const promptText = document.getElementById('prompt-text');
     const transcriptionText = document.getElementById('transcription-text');
+    const videoElement = document.getElementById('player');
+    const videoName = videoElement ? videoElement.dataset.basename : '';
+
+    // Set initial prompt text
+    const defaultPrompt = `Um mein Deutsch zu üben, versuche ich, einen Teil des Videos ${videoName} nachzuerzählen. Der folgende Text ist meine Nacherzählung. Da er mithilfe eines TTS-Tools transkribiert wurde, können einige Fehler enthalten sein. Du sollst nun versuchen, meine Nacherzählung zu verstehen und sie in eine schöne, natürliche und flüssige Sprache umzuwandeln. Achte bitte darauf, dass der Text auf dem Sprachniveau B2 (höchstens C1) bleibt, nicht zu schriftlich klingt und – wenn es passt – ein paar gängige Redewendungen oder idiomatische Ausdrücke verwendet werden. Gib mir anschließend den verbesserten Text und einen zusätzlichen Hinweis in einem Codeblock aus. Das Format muss wie folgt aussehen:
+
+\`\`\`
+{{verbesserter Text}}
+
+------
+
+{{zusätzlicher Hinweis}}
+\`\`\`
+
+Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusätzlichen Hinweis gibt, dann schreibe im zweiten Teil \`(kein zusätzlicher Hinweis)\`.  Der folgende Text ist meine Nacherzählung:`;
+
+    if (promptText) {
+        promptText.value = defaultPrompt;
+    }
+
+    // Copy functionality
+    if (copyPromptBtn) {
+        copyPromptBtn.addEventListener('click', function() {
+            const combinedText = promptText.value + '\n\n' + transcriptionText.value;
+            navigator.clipboard.writeText(combinedText).then(() => {
+                // Visual feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="material-icons align-middle">check</i> Kopiert';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+    }
     let isRecording = false;
     let isPaused = false;
 
