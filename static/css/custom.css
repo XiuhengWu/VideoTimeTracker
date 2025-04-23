@@ -594,28 +594,17 @@
 /* Text content auto-height styles */
 .text-content {
     min-height: 100px;
-    height: 100%;
+    height: fit-content;
     overflow: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
     padding: 0.75rem;
 }
 
-.row {
-    display: grid;
+#transcription-text {
+    min-height: 130px;
 }
 
-/* Make transcription and improved text blocks equal height */
-.row:has(.text-content) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.row:has(.text-content) .col-md-6 {
-    width: 100%;
-}
-
-#transcription-text,
 #improved-text {
     min-height: 130px;
 }
