@@ -243,13 +243,12 @@ def index(folder_path=None):
 @app.route('/player/<path:video_name>')
 def player(video_name):
     """Video player page"""
-    # Get the full path relative to VIDEO_DIRECTORY
+    # Get the full path and directory
     video_rel_path = video_name
-    video_basename = os.path.basename(video_name)
     video_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_rel_path))
     
     result = get_video_files(video_dir)
-    video = next((v for v in result['videos'] if os.path.basename(v['path']) == video_basename), None)
+    video = next((v for v in result['videos'] if v['path'] == video_rel_path), None)
 
     if not video:
         return redirect(url_for('index'))
