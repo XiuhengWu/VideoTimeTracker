@@ -591,22 +591,6 @@
     gap: 5px;
 }
 
-/* Auto-resize text areas and content divs */
-#transcription-text {
-    min-height: 100px;
-    height: auto;
-    overflow-y: hidden;
-    resize: none;
-}
-
-#improved-text,
-#additional-hint {
-    min-height: 100px;
-    height: auto;
-    overflow-y: hidden;
-    white-space: pre-wrap;
-}
-
 /* Audio recording styles */
 #toggle-recording.recording {
     background-color: var(--bs-danger);
