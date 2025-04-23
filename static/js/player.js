@@ -110,6 +110,9 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         toggleRecordingBtn.addEventListener('click', function() {
             if (!isRecording) {
                 // Start recording
+                toggleRecordingBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Starte...';
+                toggleRecordingBtn.disabled = true;
+                
                 fetch('/api/audio/start', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
@@ -121,9 +124,16 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                             toggleRecordingBtn.className = 'btn btn-danger';
                             pauseRecordingBtn.disabled = false;
                         }
+                    })
+                    .finally(() => {
+                        toggleRecordingBtn.disabled = false;
                     });
             } else {
                 // Stop recording and get transcription
+                toggleRecordingBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Beende...';
+                toggleRecordingBtn.disabled = true;
+                pauseRecordingBtn.disabled = true;
+
                 fetch('/api/audio/stop', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
@@ -136,13 +146,20 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                         toggleRecordingBtn.className = 'btn btn-primary';
                         pauseRecordingBtn.disabled = true;
                         pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
+                    })
+                    .finally(() => {
+                        toggleRecordingBtn.disabled = false;
                     });
             }
         });
 
         pauseRecordingBtn.addEventListener('click', function() {
+            pauseRecordingBtn.disabled = true;
+            const loadingHtml = '<span class="spinner-border spinner-border-sm" role="status"></span> ';
+            
             if (!isPaused) {
                 // Pause recording
+                pauseRecordingBtn.innerHTML = loadingHtml + 'Pausiere...';
                 fetch('/api/audio/pause', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
@@ -150,9 +167,13 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                             isPaused = true;
                             pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
                         }
+                    })
+                    .finally(() => {
+                        pauseRecordingBtn.disabled = false;
                     });
             } else {
                 // Resume recording
+                pauseRecordingBtn.innerHTML = loadingHtml + 'Setze fort...';
                 fetch('/api/audio/resume', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
@@ -160,6 +181,9 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                             isPaused = false;
                             pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">pause</i> Pause';
                         }
+                    })
+                    .finally(() => {
+                        pauseRecordingBtn.disabled = false;
                     });
             }
         });
