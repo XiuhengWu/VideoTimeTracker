@@ -249,7 +249,7 @@ def player(video_name):
     video_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_rel_path))
     
     result = get_video_files(video_dir)
-    video = next((v for v in result['videos'] if v['name'] == video_basename), None)
+    video = next((v for v in result['videos'] if os.path.basename(v['path']) == video_basename), None)
 
     if not video:
         return redirect(url_for('index'))
