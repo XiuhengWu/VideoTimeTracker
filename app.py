@@ -151,9 +151,14 @@ def get_video_files(current_dir=None):
         for item in os.listdir(scan_dir):
             filepath = os.path.join(scan_dir, item)
             if os.path.isdir(filepath):
+                # Normalize path separators to forward slashes
+                clean_path = os.path.join(rel_path, item).replace('\\', '/')
+                # Remove leading ./ if present
+                if clean_path.startswith('./'):
+                    clean_path = clean_path[2:]
                 folders.append({
                     'name': item,
-                    'path': os.path.join(rel_path, item)
+                    'path': clean_path
                 })
             elif os.path.isfile(filepath):
                 ext = os.path.splitext(item)[1].lower()
