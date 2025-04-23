@@ -71,6 +71,15 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         });
     }
 
+    const compareButton = document.getElementById('compare-texts');
+    if (compareButton) {
+        compareButton.addEventListener('click', function() {
+            const original = transcriptionText.textContent || transcriptionText.value || '';
+            const improved = document.getElementById('improved-text').textContent || '';
+            document.getElementById('improved-text').innerHTML = highlightDifferences(original, improved);
+        });
+    }
+
     if (pasteBtn) {
         pasteBtn.addEventListener('click', function() {
             navigator.clipboard.readText().then(text => {
