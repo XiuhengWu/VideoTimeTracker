@@ -249,8 +249,9 @@ def player(video_name):
     if not video:
         return redirect(url_for('index'))
 
-    # Update video path to maintain the full relative path
+    # Update video path and basename to maintain the full relative path
     video['name'] = video_rel_path
+    video['basename'] = os.path.splitext(video_rel_path)[0]
     
     return render_template('player.html', video=video, videos=result['videos'])
 
