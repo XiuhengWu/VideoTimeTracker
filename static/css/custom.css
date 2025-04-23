@@ -603,10 +603,34 @@
 
 #transcription-text {
     min-height: 130px;
+    height: 100%;
 }
 
 #improved-text {
     min-height: 130px;
+    height: 100%;
+}
+
+.audio-transcription-row {
+    display: flex;
+    margin: 0 -15px;
+}
+
+.audio-transcription-row > div {
+    flex: 1;
+    padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.audio-transcription-row .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.audio-transcription-row .form-control {
+    flex: 1;
 }
 
 #additional-hint {
