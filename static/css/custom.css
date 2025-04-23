@@ -591,6 +591,28 @@
     gap: 5px;
 }
 
+/* Text content auto-height styles */
+.text-content {
+    min-height: 100px;
+    height: fit-content;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 0.75rem;
+}
+
+#transcription-text {
+    min-height: 130px;
+}
+
+#improved-text {
+    min-height: 130px;
+}
+
+#additional-hint {
+    min-height: 50px;
+}
+
 /* Audio recording styles */
 #toggle-recording.recording {
     background-color: var(--bs-danger);
