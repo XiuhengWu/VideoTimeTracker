@@ -123,12 +123,12 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                         }
                     });
             } else {
-                // Stop recording
+                // Stop recording and get transcription
                 fetch('/api/audio/stop', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.transcription) {
-                            transcriptionText.value += (transcriptionText.value ? ' ' : '') + data.transcription;
+                            transcriptionText.value = data.transcription;
                         }
                         isRecording = false;
                         isPaused = false;
@@ -146,11 +146,10 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 fetch('/api/audio/pause', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success && data.transcription) {
-                            transcriptionText.value += (transcriptionText.value ? ' ' : '') + data.transcription;
+                        if (data.success) {
+                            isPaused = true;
+                            pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
                         }
-                        isPaused = true;
-                        pauseRecordingBtn.innerHTML = '<i class="material-icons align-middle">play_arrow</i> Fortsetzen';
                     });
             } else {
                 // Resume recording

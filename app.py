@@ -39,69 +39,77 @@ RATE = 16000
 
 
 class AudioRecorder:
-
     def __init__(self):
         self.audio = pyaudio.PyAudio()
         self.stream = None
         self.frames = []
         self.is_recording = False
+        self.is_paused = False
         self.whisper_model = whisper.load_model("tiny", device="cpu")
         self.lock = threading.Lock()
+        self.recording_thread = None
 
     def start_recording(self):
         if not self.is_recording:
             self.stream = self.audio.open(format=FORMAT,
-                                          channels=CHANNELS,
-                                          rate=RATE,
-                                          input=True,
-                                          frames_per_buffer=CHUNK)
+                                        channels=CHANNELS,
+                                        rate=RATE,
+                                        input=True,
+                                        frames_per_buffer=CHUNK)
             self.frames = []
             self.is_recording = True
-            threading.Thread(target=self._record).start()
+            self.is_paused = False
+            self.recording_thread = threading.Thread(target=self._record)
+            self.recording_thread.start()
+            return True
+        return False
 
     def _record(self):
         while self.is_recording:
-            try:
-                data = self.stream.read(CHUNK)
-                with self.lock:
-                    self.frames.append(data)
-            except Exception as e:
-                logger.error(f"Error recording audio: {e}")
-                break
+            if not self.is_paused:
+                try:
+                    data = self.stream.read(CHUNK, exception_on_overflow=False)
+                    with self.lock:
+                        self.frames.append(data)
+                except Exception as e:
+                    logger.error(f"Error recording audio: {e}")
+                    break
 
     def pause_recording(self):
-        if self.is_recording:
-            self.is_recording = False
-            if self.stream:
-                self.stream.stop_stream()
-                self.stream.close()
-            return self.transcribe_audio()
+        self.is_paused = True
+        return True
 
     def resume_recording(self):
-        self.start_recording()
+        self.is_paused = False
+        return True
 
     def stop_recording(self):
         if self.is_recording:
             self.is_recording = False
+            self.is_paused = False
             if self.stream:
                 self.stream.stop_stream()
                 self.stream.close()
-            result = self.transcribe_audio()
+            if self.recording_thread:
+                self.recording_thread.join()
+            
+            # Perform transcription
+            transcription = self.transcribe_audio()
             self.frames = []  # Clear frames
-            return result
+            return transcription
+        return ""
 
     def transcribe_audio(self):
         if not self.frames:
             return ""
 
         with self.lock:
-            # Convert frames to numpy array
-            audio_data = np.frombuffer(b''.join(self.frames), dtype=np.float32)
-
             try:
+                # Convert frames to numpy array
+                audio_data = np.frombuffer(b''.join(self.frames), dtype=np.float32)
+                
                 # Transcribe using Whisper
-                result = self.whisper_model.transcribe(audio_data,
-                                                       language="de")
+                result = self.whisper_model.transcribe(audio_data, language="de")
                 return result["text"].strip()
             except Exception as e:
                 logger.error(f"Error transcribing audio: {e}")
