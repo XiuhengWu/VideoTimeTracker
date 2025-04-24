@@ -57,6 +57,34 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     copyPromptBtn.insertAdjacentElement('afterend', pasteBtn);
     copyPromptBtn.classList.add('me-0');
 
+    // Font size control for recording section
+    const recordingFontSizeSelect = document.getElementById('recording-font-size');
+    if (recordingFontSizeSelect) {
+        const textElements = [
+            document.getElementById('transcription-text'),
+            document.getElementById('improved-text'),
+            document.getElementById('additional-hint')
+        ];
+
+        recordingFontSizeSelect.addEventListener('change', function() {
+            const fontSize = this.value + 'px';
+            textElements.forEach(element => {
+                if (element) element.style.fontSize = fontSize;
+            });
+            localStorage.setItem('recording-font-size', this.value);
+        });
+
+        // Load saved font size
+        const savedFontSize = localStorage.getItem('recording-font-size');
+        if (savedFontSize) {
+            recordingFontSizeSelect.value = savedFontSize;
+            const fontSize = savedFontSize + 'px';
+            textElements.forEach(element => {
+                if (element) element.style.fontSize = fontSize;
+            });
+        }
+    }
+
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
             const combinedText = promptText.value + '\n\n' + transcriptionText.value;
@@ -73,10 +101,26 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
 
     const compareButton = document.getElementById('compare-texts');
     if (compareButton) {
+        let isComparing = false;
+        let originalContent = '';
+        
         compareButton.addEventListener('click', function() {
+            const improvedTextElement = document.getElementById('improved-text');
             const original = transcriptionText.textContent || transcriptionText.value || '';
-            const improved = document.getElementById('improved-text').textContent || '';
-            document.getElementById('improved-text').innerHTML = highlightDifferences(original, improved);
+            const improved = improvedTextElement.textContent || '';
+
+            if (!isComparing) {
+                // Start comparison
+                originalContent = improvedTextElement.innerHTML;
+                improvedTextElement.innerHTML = highlightDifferences(original, improved);
+                this.innerHTML = '<i class="material-icons align-middle">compare_arrows</i> Vergleich beenden';
+                isComparing = true;
+            } else {
+                // End comparison
+                improvedTextElement.innerHTML = originalContent;
+                this.innerHTML = '<i class="material-icons align-middle">compare_arrows</i> Texte vergleichen';
+                isComparing = false;
+            }
         });
     }
 
@@ -99,8 +143,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
 
                 // Konvertiere Zeilenumbrüche in <br> Tags
                 const formattedImprovedText = improvedText.replace(/\n/g, '<br>');
-                document.getElementById('improved-text').innerHTML = 
-                    highlightDifferences(transcriptionText.value, formattedImprovedText);
+                document.getElementById('improved-text').innerHTML = formattedImprovedText;
                 document.getElementById('additional-hint').innerHTML = additionalHint.replace(/\n/g, '<br>');
 
                 // Visual feedback
