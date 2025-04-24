@@ -1369,7 +1369,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         autoCorrectBtn.addEventListener('click', async function() {
             const transcription = transcriptionText.innerText;
             try {
-                const response = await fetch('/api/autocorrect', {
+                const response = await fetch('/api/auto-correct', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
