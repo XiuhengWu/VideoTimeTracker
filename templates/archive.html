@@ -61,21 +61,32 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">{{ entry.video_name }}</h5>
-                        <small class="text-muted">{{ entry.date }}</small>
+                        <div>
+                            <small class="text-muted me-3">{{ entry.date }}</small>
+                            <button class="btn btn-sm btn-outline-danger delete-archive" data-id="{{ entry.id }}">
+                                <i class="material-icons align-middle">delete</i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
                             <h6>Ursprüngliche Transkription:</h6>
-                            <div class="text-content border rounded p-3">{{ entry.transcription }}</div>
+                            <div class="text-content border rounded p-3" contenteditable="true" 
+                                 data-field="transcription" data-id="{{ entry.id }}">{{ entry.transcription }}</div>
                         </div>
                         <div class="mb-3">
                             <h6>Verbesserte Version:</h6>
-                            <div class="text-content border rounded p-3">{{ entry.improved }}</div>
+                            <div class="text-content border rounded p-3" contenteditable="true"
+                                 data-field="improved" data-id="{{ entry.id }}">{{ entry.improved }}</div>
                         </div>
-                        <div>
+                        <div class="mb-3">
                             <h6>Hinweis:</h6>
-                            <div class="text-content border rounded p-3">{{ entry.hint }}</div>
+                            <div class="text-content border rounded p-3" contenteditable="true"
+                                 data-field="hint" data-id="{{ entry.id }}">{{ entry.hint }}</div>
                         </div>
+                        <button class="btn btn-primary save-changes" data-id="{{ entry.id }}">
+                            <i class="material-icons align-middle">save</i> Änderungen speichern
+                        </button>
                     </div>
                 </div>
             </div>
@@ -97,5 +108,63 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Speichern von Änderungen
+            document.querySelectorAll('.save-changes').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const card = this.closest('.card');
+                    const data = {
+                        id: id,
+                        transcription: card.querySelector('[data-field="transcription"]').innerText,
+                        improved: card.querySelector('[data-field="improved"]').innerText,
+                        hint: card.querySelector('[data-field="hint"]').innerText
+                    };
+
+                    fetch('/api/archive/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            button.innerHTML = '<i class="material-icons align-middle">check</i> Gespeichert';
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="material-icons align-middle">save</i> Änderungen speichern';
+                            }, 2000);
+                        }
+                    });
+                });
+            });
+
+            // Löschen von Archiveinträgen
+            document.querySelectorAll('.delete-archive').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('Möchten Sie diesen Archiveintrag wirklich löschen?')) {
+                        const id = this.dataset.id;
+                        fetch('/api/archive/delete', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({id: id})
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.col-12').remove();
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

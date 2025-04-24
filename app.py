@@ -182,6 +182,41 @@ def save_to_archive():
         logger.error(f"Error saving to archive: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/archive/update', methods=['POST'])
+def update_archive():
+    """API to update archive entry"""
+    try:
+        data = request.get_json()
+        archive_data = load_archive()
+        
+        for entry in archive_data:
+            if str(entry['id']) == str(data['id']):
+                entry['transcription'] = data['transcription']
+                entry['improved'] = data['improved']
+                entry['hint'] = data['hint']
+                break
+                
+        save_archive(archive_data)
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error updating archive: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/archive/delete', methods=['POST'])
+def delete_archive():
+    """API to delete archive entry"""
+    try:
+        data = request.get_json()
+        archive_data = load_archive()
+        
+        archive_data = [entry for entry in archive_data if str(entry['id']) != str(data['id'])]
+        
+        save_archive(archive_data)
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error deleting from archive: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
