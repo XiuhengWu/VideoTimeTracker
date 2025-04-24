@@ -627,5 +627,24 @@ def explain_word():
             return jsonify({'success': False, 'error': str(e)})
 
 
+@app.route('/api/auto-correct', methods=['POST'])
+def auto_correct():
+    """Auto-correct the given text"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        
+        # Test-Nachricht zurückgeben
+        corrected_text = "Dies ist eine Test-Korrektur. Hier wird später die echte Korrektur implementiert."
+        
+        return jsonify({
+            'success': True,
+            'corrected_text': corrected_text
+        })
+    except Exception as e:
+        logger.error(f"Auto-correction error: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

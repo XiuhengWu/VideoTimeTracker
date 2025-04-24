@@ -872,7 +872,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     //                 }
     //             }
 
-    //             // Logic for jumping
+    //             // Logicfor jumping
     //             if (activeCue && player.currentTime >= activeCue.startTime + 1) {
     //                 // If more than 1 second into current cue, jump to start of current cue
     //                 player.currentTime = activeCue.startTime;
