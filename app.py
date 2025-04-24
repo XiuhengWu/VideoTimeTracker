@@ -9,7 +9,6 @@ import numpy as np
 import threading
 from io import BytesIO
 from datetime import datetime
-from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory, flash
 from werkzeug.utils import secure_filename
 from googletrans import Translator
@@ -45,7 +44,7 @@ class AudioRecorder:
         self.frames = []
         self.is_recording = False
         self.is_paused = False
-        self.whisper_model = whisper.load_model("tiny", device="cpu")
+        self.whisper_model = whisper.load_model("turbo", device="cpu")
         self.lock = threading.Lock()
         self.recording_thread = None
 
@@ -92,7 +91,7 @@ class AudioRecorder:
                 self.stream.close()
             if self.recording_thread:
                 self.recording_thread.join()
-            
+
             # Perform transcription
             transcription = self.transcribe_audio()
             self.frames = []  # Clear frames
@@ -107,9 +106,10 @@ class AudioRecorder:
             try:
                 # Convert frames to numpy array
                 audio_data = np.frombuffer(b''.join(self.frames), dtype=np.float32)
-                
+
                 # Transcribe using Whisper
                 result = self.whisper_model.transcribe(audio_data, language="de")
+                print(result)
                 return result["text"].strip()
             except Exception as e:
                 logger.error(f"Error transcribing audio: {e}")
@@ -246,7 +246,7 @@ def player(video_name):
     # Get the full path and directory
     video_rel_path = video_name
     video_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_rel_path))
-    
+
     result = get_video_files(video_dir)
     video = next((v for v in result['videos'] if v['path'] == video_rel_path), None)
 
@@ -256,7 +256,7 @@ def player(video_name):
     # Update video path and basename to maintain the full relative path
     video['name'] = video_rel_path
     video['basename'] = os.path.splitext(video_rel_path)[0]
-    
+
     return render_template('player.html', video=video, videos=result['videos'])
 
 
