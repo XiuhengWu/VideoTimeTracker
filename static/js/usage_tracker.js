@@ -26,16 +26,47 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
+    // Track when unfocused setting
+    let trackWhenUnfocused = localStorage.getItem('trackWhenUnfocused') === 'true';
+
     // Update tracking indicator status
     function updateTrackingStatus() {
         if (!trackingIndicator) return;
 
-        if (isTracking && isPageFocused) {
+        if (isTracking && (isPageFocused || trackWhenUnfocused)) {
             trackingIndicator.innerHTML = '<span class="badge bg-success"><span class="tracking-active"></span>Tracking aktiv</span>';
-        } else if (isTracking && !isPageFocused) {
+        } else if (isTracking && !isPageFocused && !trackWhenUnfocused) {
             trackingIndicator.innerHTML = '<span class="badge bg-warning"><span class="tracking-paused"></span>Seite inaktiv</span>';
         } else {
             trackingIndicator.innerHTML = '<span class="badge bg-danger"><span class="tracking-paused"></span>Tracking pausiert</span>';
+        }
+
+        // Add tracking when unfocused toggle
+        if (isTracking) {
+            trackingIndicator.innerHTML += `
+                <div class="mt-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="trackWhenUnfocusedCheck" ${trackWhenUnfocused ? 'checked' : ''}>
+                        <label class="form-check-label" for="trackWhenUnfocusedCheck">
+                            Im Hintergrund tracken
+                        </label>
+                    </div>
+                </div>`;
+
+            // Add event listener to checkbox
+            document.getElementById('trackWhenUnfocusedCheck').addEventListener('change', function(e) {
+                trackWhenUnfocused = e.target.checked;
+                localStorage.setItem('trackWhenUnfocused', trackWhenUnfocused);
+                if (!isPageFocused) {
+                    if (trackWhenUnfocused) {
+                        startTime = Date.now();
+                        startTracking();
+                    } else {
+                        stopTracking();
+                    }
+                }
+                updateTrackingStatus();
+            });
         }
     }
 
@@ -145,7 +176,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener for window focus/blur
     window.addEventListener('blur', function() {
         isPageFocused = false;
-        stopTracking();
+        if (!trackWhenUnfocused) {
+            stopTracking();
+        }
         updateTrackingStatus();
     });
 
