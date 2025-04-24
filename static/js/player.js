@@ -87,7 +87,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
 
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
-            const combinedText = promptText.value + '\n\n' + transcriptionText.value;
+            const combinedText = promptText.value + '\n\n' + transcriptionText.innerText;
             navigator.clipboard.writeText(combinedText).then(() => {
                 // Visual feedback
                 const originalText = this.innerHTML;
@@ -103,10 +103,10 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     if (compareButton) {
         let isComparing = false;
         let originalContent = '';
-        
+
         compareButton.addEventListener('click', function() {
             const improvedTextElement = document.getElementById('improved-text');
-            const original = transcriptionText.textContent || transcriptionText.value || '';
+            const original = transcriptionText.textContent || transcriptionText.innerText || '';
             const improved = improvedTextElement.textContent || '';
 
             if (!isComparing) {
@@ -164,14 +164,14 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 // Start recording
                 toggleRecordingBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Starte...';
                 toggleRecordingBtn.disabled = true;
-                
+
                 fetch('/api/audio/start', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             isRecording = true;
                             isPaused = false;
-                            transcriptionText.value = ''; // Clear previous transcription
+                            transcriptionText.innerText = ''; // Clear previous transcription
                             toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
                             toggleRecordingBtn.className = 'btn btn-danger';
                             pauseRecordingBtn.disabled = false;
@@ -190,7 +190,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     .then(response => response.json())
                     .then(data => {
                         if (data.success && data.transcription) {
-                            transcriptionText.value = data.transcription;
+                            transcriptionText.innerText = data.transcription;
                         }
                         isRecording = false;
                         isPaused = false;
@@ -208,7 +208,7 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         pauseRecordingBtn.addEventListener('click', function() {
             pauseRecordingBtn.disabled = true;
             const loadingHtml = '<span class="spinner-border spinner-border-sm" role="status"></span> ';
-            
+
             if (!isPaused) {
                 // Pause recording
                 pauseRecordingBtn.innerHTML = loadingHtml + 'Pausiere...';
