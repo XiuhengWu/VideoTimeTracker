@@ -85,6 +85,40 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
         }
     }
 
+    const archiveBtn = document.getElementById('archive-transcription');
+    if (archiveBtn) {
+        archiveBtn.addEventListener('click', function() {
+            const videoName = document.getElementById('player').dataset.basename;
+            const transcription = document.getElementById('transcription-text').innerText;
+            const improved = document.getElementById('improved-text').innerText;
+            const hint = document.getElementById('additional-hint').innerText;
+
+            fetch('/api/archive', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    video_name: videoName,
+                    transcription: transcription,
+                    improved: improved,
+                    hint: hint
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Visual feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="material-icons align-middle">check</i> Archiviert';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                }
+            });
+        });
+    }
+
     if (copyPromptBtn) {
         copyPromptBtn.addEventListener('click', function() {
             const combinedText = promptText.value + '\n\n' + transcriptionText.innerText;

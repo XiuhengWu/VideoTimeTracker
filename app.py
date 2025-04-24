@@ -129,10 +129,58 @@ VIDEO_DIRECTORY = os.environ.get("VIDEO_DIRECTORY", r"./videos")
 UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "./uploads")
 ALLOWED_EXTENSIONS = {'vtt'}
 USAGE_DATA_FILE = "usage_data.json"
+ARCHIVE_FILE = "transcription_archive.json"
 
 # Ensure directories exist
 os.makedirs(VIDEO_DIRECTORY, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def load_archive():
+    """Load archive data from file"""
+    try:
+        if os.path.exists(ARCHIVE_FILE):
+            with open(ARCHIVE_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading archive data: {e}")
+    return []
+
+def save_archive(data):
+    """Save archive data to file"""
+    try:
+        with open(ARCHIVE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving archive data: {e}")
+
+@app.route('/archive')
+def archive():
+    """Archive page showing saved transcriptions"""
+    archive_data = load_archive()
+    return render_template('archive.html', entries=archive_data)
+
+@app.route('/api/archive', methods=['POST'])
+def save_to_archive():
+    """API to save transcription to archive"""
+    try:
+        data = request.get_json()
+        archive_data = load_archive()
+        
+        new_entry = {
+            'id': len(archive_data),
+            'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'video_name': data.get('video_name', ''),
+            'transcription': data.get('transcription', ''),
+            'improved': data.get('improved', ''),
+            'hint': data.get('hint', '')
+        }
+        
+        archive_data.append(new_entry)
+        save_archive(archive_data)
+        return jsonify({'success': True})
+    except Exception as e:
+        logger.error(f"Error saving to archive: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 

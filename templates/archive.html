@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="de" data-bs-theme="{{ session.get('theme', 'dark') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transkriptionsarchiv</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="material-icons align-middle">video_library</i>
+                Videobibliothek
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="material-icons align-middle">home</i> Start
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('statistics') }}">
+                            <i class="material-icons align-middle">bar_chart</i> Statistik
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('archive') }}">
+                            <i class="material-icons align-middle">archive</i> Archiv
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('toggle_theme') }}">
+                            <i class="material-icons align-middle">{{ 'light_mode' if session.get('theme') == 'dark' else 'dark_mode' }}</i> 
+                            {{ 'Hell-Modus' if session.get('theme') == 'dark' else 'Dunkel-Modus' }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1>Transkriptionsarchiv</h1>
+        <div class="row">
+            {% for entry in entries %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ entry.video_name }}</h5>
+                        <small class="text-muted">{{ entry.date }}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6>Ursprüngliche Transkription:</h6>
+                            <div class="text-content border rounded p-3">{{ entry.transcription }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Verbesserte Version:</h6>
+                            <div class="text-content border rounded p-3">{{ entry.improved }}</div>
+                        </div>
+                        <div>
+                            <h6>Hinweis:</h6>
+                            <div class="text-content border rounded p-3">{{ entry.hint }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Noch keine Einträge im Archiv vorhanden.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3">
+        <div class="container text-center">
+            <p class="text-muted mb-0">Videobibliothek mit Nutzungsverfolgung</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
