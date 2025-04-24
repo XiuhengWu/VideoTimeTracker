@@ -23,12 +23,14 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET",
                                 "devkey-replace-in-production")
 
+
 @app.before_request
 def load_last_directory():
     global VIDEO_DIRECTORY
     last_directory = request.cookies.get('last_directory')
     if last_directory and os.path.isdir(last_directory):
         VIDEO_DIRECTORY = last_directory
+
 
 # Audio recording configuration
 CHUNK = 1024
@@ -38,6 +40,7 @@ RATE = 16000
 
 
 class AudioRecorder:
+
     def __init__(self):
         self.audio = pyaudio.PyAudio()
         self.stream = None
@@ -51,10 +54,10 @@ class AudioRecorder:
     def start_recording(self):
         if not self.is_recording:
             self.stream = self.audio.open(format=FORMAT,
-                                        channels=CHANNELS,
-                                        rate=RATE,
-                                        input=True,
-                                        frames_per_buffer=CHUNK)
+                                          channels=CHANNELS,
+                                          rate=RATE,
+                                          input=True,
+                                          frames_per_buffer=CHUNK)
             self.frames = []
             self.is_recording = True
             self.is_paused = False
@@ -105,10 +108,12 @@ class AudioRecorder:
         with self.lock:
             try:
                 # Convert frames to numpy array
-                audio_data = np.frombuffer(b''.join(self.frames), dtype=np.float32)
+                audio_data = np.frombuffer(b''.join(self.frames),
+                                           dtype=np.float32)
 
                 # Transcribe using Whisper
-                result = self.whisper_model.transcribe(audio_data, language="de")
+                result = self.whisper_model.transcribe(audio_data,
+                                                       language="de")
                 print(result)
                 return result["text"].strip()
             except Exception as e:
@@ -156,10 +161,7 @@ def get_video_files(current_dir=None):
                 # Remove leading ./ if present
                 if clean_path.startswith('./'):
                     clean_path = clean_path[2:]
-                folders.append({
-                    'name': item,
-                    'path': clean_path
-                })
+                folders.append({'name': item, 'path': clean_path})
             elif os.path.isfile(filepath):
                 ext = os.path.splitext(item)[1].lower()
                 if ext in valid_extensions:
@@ -248,14 +250,16 @@ def player(video_name):
     video_dir = os.path.dirname(os.path.join(VIDEO_DIRECTORY, video_rel_path))
 
     result = get_video_files(video_dir)
-    video = next((v for v in result['videos'] if v['path'] == video_rel_path), None)
+    video = next((v for v in result['videos'] if v['path'] == video_rel_path),
+                 None)
 
     if not video:
         return redirect(url_for('index'))
 
     # Update video path and basename, removing leading ./ if present
-    video['name'] = video_rel_path.lstrip('./').lstrip('.')
-    video['basename'] = os.path.splitext(video_rel_path)[0].lstrip('./').lstrip('.')
+    video['name'] = video_rel_path.lstrip('.\\').lstrip('.')
+    video['basename'] = os.path.splitext(video_rel_path)[0].lstrip(
+        '.\\').lstrip('.')
 
     return render_template('player.html', video=video, videos=result['videos'])
 
