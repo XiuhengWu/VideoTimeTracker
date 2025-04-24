@@ -1362,4 +1362,32 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
             uploadFile(this, 'thumbnails');
         });
     }
+
+    // Auto-correct button functionality
+    const autoCorrectBtn = document.getElementById('auto-correct');
+    if (autoCorrectBtn) {
+        autoCorrectBtn.addEventListener('click', async function() {
+            const transcription = transcriptionText.innerText;
+            try {
+                const response = await fetch('/api/autocorrect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ transcription })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const correctedText = data.corrected_text;
+                    // Simulate paste action
+                    navigator.clipboard.writeText(`\`\`\`\n${correctedText}\n------\n(kein zusätzlicher Hinweis)\n\`\`\``);
+                    pasteBtn.click(); // Trigger the paste event
+                } else {
+                    alert('Autokorrektur fehlgeschlagen: ' + data.error);
+                }
+            } catch (error) {
+                alert('Autokorrektur fehlgeschlagen: ' + error);
+            }
+        });
+    }
 });
