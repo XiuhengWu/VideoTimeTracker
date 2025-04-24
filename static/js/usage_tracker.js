@@ -124,27 +124,32 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTrackingStatus();
 
         if (toggleTrackingBtn) {
-            const trackingControls = document.createElement('div');
-            trackingControls.className = 'tracking-controls';
-
-            // Create unfocused tracking checkbox
-            const unfocusedCheck = document.createElement('div');
-            unfocusedCheck.className = 'form-check mb-2';
-            unfocusedCheck.innerHTML = `
-                <input class="form-check-input" type="checkbox" id="track-unfocused" ${trackWhenUnfocused ? 'checked' : ''}>
-                <label class="form-check-label" for="track-unfocused">
-                    Tracking bei unfokussierter Seite fortsetzen
-                </label>
-            `;
-
-            // Main tracking button
+            // Main tracking button update
             toggleTrackingBtn.textContent = isTracking ? 'Tracking pausieren' : 'Tracking fortsetzen';
             toggleTrackingBtn.className = isTracking ? 'btn btn-warning btn-sm' : 'btn btn-success btn-sm';
 
-            // Replace button with controls
-            toggleTrackingBtn.parentNode.replaceChild(trackingControls, toggleTrackingBtn);
-            trackingControls.appendChild(unfocusedCheck);
-            trackingControls.appendChild(toggleTrackingBtn);
+            // Create or update tracking controls
+            let trackingControls = document.querySelector('.tracking-controls');
+            if (!trackingControls) {
+                trackingControls = document.createElement('div');
+                trackingControls.className = 'tracking-controls';
+                toggleTrackingBtn.parentNode.insertBefore(trackingControls, toggleTrackingBtn);
+            }
+
+            // Update unfocused tracking checkbox
+            let unfocusedCheck = document.getElementById('track-unfocused-container');
+            if (!unfocusedCheck) {
+                unfocusedCheck = document.createElement('div');
+                unfocusedCheck.id = 'track-unfocused-container';
+                unfocusedCheck.className = 'form-check mb-2';
+                unfocusedCheck.innerHTML = `
+                    <input class="form-check-input" type="checkbox" id="track-unfocused" ${trackWhenUnfocused ? 'checked' : ''}>
+                    <label class="form-check-label" for="track-unfocused">
+                        Tracking bei unfokussierter Seite fortsetzen
+                    </label>
+                `;
+                trackingControls.appendChild(unfocusedCheck);
+            }
 
             // Add event listener for checkbox
             document.getElementById('track-unfocused').addEventListener('change', function(e) {
