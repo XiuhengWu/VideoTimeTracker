@@ -69,6 +69,16 @@
                 <h1>Videobibliothek</h1>
                 <p class="lead">Wählen Sie ein Video aus der Liste unten aus.</p>
                 
+                <!-- Search bar -->
+                <form class="mb-3" id="search-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="search-input" placeholder="Videos suchen...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="material-icons align-middle">search</i> Suchen
+                        </button>
+                    </div>
+                </form>
+
                 <!-- Directory selection -->
                 <form action="{{ url_for('set_directory') }}" method="post" class="mb-3">
                     <div class="input-group">
@@ -188,5 +198,7 @@
     
     <!-- Usage Tracker JS -->
     <script src="{{ url_for('static', filename='js/usage_tracker.js') }}"></script>
+    <!-- Search JS -->
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
 </body>
 </html>

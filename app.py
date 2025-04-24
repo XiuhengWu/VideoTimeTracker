@@ -225,7 +225,7 @@ def allowed_file(filename):
         '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_video_files(current_dir=None):
+def get_video_files(current_dir=None, search_query=None):
     """Scan directory for video files and folders"""
     videos = []
     folders = []
@@ -247,7 +247,7 @@ def get_video_files(current_dir=None):
                 folders.append({'name': item, 'path': clean_path})
             elif os.path.isfile(filepath):
                 ext = os.path.splitext(item)[1].lower()
-                if ext in valid_extensions:
+                if ext in valid_extensions and (not search_query or search_query.lower() in item.lower()):
                     basename = os.path.splitext(item)[0]
 
                     # Check for subtitle and thumbnail files
@@ -317,7 +317,8 @@ def index(folder_path=None):
         flash("Ordner nicht gefunden", "error")
         return redirect(url_for('index'))
 
-    result = get_video_files(current_dir)
+    search_query = request.args.get('search', '')
+    result = get_video_files(current_dir, search_query)
     return render_template('index.html',
                            videos=result['videos'],
                            folders=result['folders'],
