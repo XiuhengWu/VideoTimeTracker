@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let isTracking = sessionStorage.getItem('isTracking') === 'false' ? false : true;
     let isPageFocused = true;
     let intervalId = null;
-    let trackWhenUnfocused = sessionStorage.getItem('trackWhenUnfocused') === 'true';
 
     // Elements
     const trackingIndicator = document.getElementById('tracking-indicator');
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTodayCounter() {
         if (!todayCounter) return;
 
-        const currentTime = isTracking && (isPageFocused || trackWhenUnfocused) ? Date.now() - startTime + elapsedTime : elapsedTime;
+        const currentTime = isTracking && isPageFocused ? Date.now() - startTime + elapsedTime : elapsedTime;
         todayCounter.textContent = formatTime(currentTime);
     }
 
@@ -53,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (intervalId) return;
 
         intervalId = setInterval(() => {
-            if (isTracking && (isPageFocused || trackWhenUnfocused)) {
+            if (isTracking && isPageFocused) {
                 updateTodayCounter();
             }
         }, 1000);
@@ -124,57 +123,29 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTrackingStatus();
 
         if (toggleTrackingBtn) {
-            const trackingControls = document.createElement('div');
-            trackingControls.className = 'tracking-controls';
-
-            // Create unfocused tracking checkbox
-            const unfocusedCheck = document.createElement('div');
-            unfocusedCheck.className = 'form-check mb-2';
-            unfocusedCheck.innerHTML = `
-                <input class="form-check-input" type="checkbox" id="track-unfocused" ${trackWhenUnfocused ? 'checked' : ''}>
-                <label class="form-check-label" for="track-unfocused">
-                    Tracking bei unfokussierter Seite fortsetzen
-                </label>
-            `;
-
-            // Main tracking button
             toggleTrackingBtn.textContent = isTracking ? 'Tracking pausieren' : 'Tracking fortsetzen';
-            toggleTrackingBtn.className = isTracking ? 'btn btn-warning btn-sm' : 'btn btn-success btn-sm';
-
-            // Replace button with controls
-            toggleTrackingBtn.parentNode.replaceChild(trackingControls, toggleTrackingBtn);
-            trackingControls.appendChild(unfocusedCheck);
-            trackingControls.appendChild(toggleTrackingBtn);
-
-            // Add event listener for checkbox
-            document.getElementById('track-unfocused').addEventListener('change', function(e) {
-                trackWhenUnfocused = e.target.checked;
-                sessionStorage.setItem('trackWhenUnfocused', trackWhenUnfocused);
-            });
+            toggleTrackingBtn.className = isTracking ? 'btn btn-warning btn-sm mt-2' : 'btn btn-success btn-sm mt-2';
         }
     }
 
     // Event listener for page visibility changes
     document.addEventListener('visibilitychange', function() {
         isPageFocused = !document.hidden;
-        updateTrackingStatus();
-        if (!isPageFocused && isTracking && !trackWhenUnfocused) {
+
+        if (!isPageFocused) {
             stopTracking();
-        } else if (!isPageFocused && isTracking && trackWhenUnfocused) {
-            //Do nothing, continue tracking
-        } else if (isPageFocused && isTracking) {
+        } else if (isTracking) {
             startTime = Date.now();
             startTracking();
         }
-    });
 
+        updateTrackingStatus();
+    });
 
     // Event listener for window focus/blur
     window.addEventListener('blur', function() {
         isPageFocused = false;
-        if (isTracking && !trackWhenUnfocused) {
-            stopTracking();
-        }
+        stopTracking();
         updateTrackingStatus();
     });
 
@@ -189,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set up toggle tracking button
     if (toggleTrackingBtn) {
-        toggleTracking(); //Initial call
+        toggleTrackingBtn.addEventListener('click', toggleTracking);
     }
 
     // Event listener for page unload
