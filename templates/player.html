@@ -47,25 +47,6 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-3">
-                        <li class="nav-item">
-                            <div class="d-flex align-items-center">
-                                <span class="text-muted me-2"
-                                    >Heutige Nutzung:</span
-                                >
-                                <span
-                                    id="today-counter"
-                                    class="badge bg-primary"
-                                    >00:00:00</span
-                                >
-                                <button
-                                    id="toggle-tracking"
-                                    class="btn btn-warning btn-sm mt-2"
-                                    style="margin-left: 10px"
-                                >
-                                    Tracking pausieren
-                                </button>
-                            </div>
-                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
@@ -176,6 +157,17 @@
                         </video>
                     </div>
 
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted me-2">Heutige Nutzung:</span>
+                                <span id="today-counter" class="badge bg-primary">00:00:00</span>
+                                <button id="toggle-tracking" class="btn btn-warning btn-sm" style="margin-left: 10px">
+                                    Tracking pausieren
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-between mb-4">
                         <a
                             href="{{ url_for('index') }}"
