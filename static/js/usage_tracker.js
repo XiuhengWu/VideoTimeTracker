@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTodayCounter() {
         if (!todayCounter) return;
 
-        const currentTime = isTracking && isPageFocused ? Date.now() - startTime + elapsedTime : elapsedTime;
+        const currentTime = isTracking ? (continueTrackingOnBlur || isPageFocused ? Date.now() - startTime + elapsedTime : elapsedTime) : elapsedTime;
         todayCounter.textContent = formatTime(currentTime);
     }
 
