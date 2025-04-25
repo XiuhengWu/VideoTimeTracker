@@ -128,11 +128,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Manual tracking control
+    let continueTrackingOnBlur = false;
+
+    // Add checkbox to control tracking behavior
+    const trackingControls = document.createElement('div');
+    trackingControls.className = 'form-check mt-2';
+    trackingControls.innerHTML = `
+        <input class="form-check-input" type="checkbox" id="continue-tracking">
+        <label class="form-check-label" for="continue-tracking">
+            Tracking bei inaktiver Seite fortsetzen
+        </label>
+    `;
+    
+    if (toggleTrackingBtn) {
+        toggleTrackingBtn.parentNode.appendChild(trackingControls);
+    }
+
+    // Load saved preference
+    continueTrackingOnBlur = localStorage.getItem('continueTrackingOnBlur') === 'true';
+    document.getElementById('continue-tracking').checked = continueTrackingOnBlur;
+
+    // Save preference when changed
+    document.getElementById('continue-tracking').addEventListener('change', function() {
+        continueTrackingOnBlur = this.checked;
+        localStorage.setItem('continueTrackingOnBlur', continueTrackingOnBlur);
+    });
+
     // Event listener for page visibility changes
     document.addEventListener('visibilitychange', function() {
         isPageFocused = !document.hidden;
 
-        if (!isPageFocused) {
+        if (!isPageFocused && !continueTrackingOnBlur) {
             stopTracking();
         } else if (isTracking) {
             startTime = Date.now();
@@ -145,7 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener for window focus/blur
     window.addEventListener('blur', function() {
         isPageFocused = false;
-        stopTracking();
+        if (!continueTrackingOnBlur) {
+            stopTracking();
+        }
         updateTrackingStatus();
     });
 
