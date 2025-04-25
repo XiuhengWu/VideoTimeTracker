@@ -43,8 +43,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTodayCounter() {
         if (!todayCounter) return;
 
-        const currentTime = isTracking ? (continueTrackingOnBlur || isPageFocused ? Date.now() - startTime + elapsedTime : elapsedTime) : elapsedTime;
-        todayCounter.textContent = formatTime(currentTime);
+        if (isTracking) {
+            if (continueTrackingOnBlur || isPageFocused) {
+                const currentTime = Date.now() - startTime + elapsedTime;
+                todayCounter.textContent = formatTime(currentTime);
+            }
+        } else {
+            todayCounter.textContent = formatTime(elapsedTime);
+        }
     }
 
     // Start tracking interval
@@ -52,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (intervalId) return;
 
         intervalId = setInterval(() => {
-            if (isTracking && isPageFocused) {
+            if (isTracking && (continueTrackingOnBlur || isPageFocused)) {
                 updateTodayCounter();
             }
         }, 1000);
@@ -162,8 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isPageFocused && !continueTrackingOnBlur) {
             stopTracking();
         } else if (isTracking) {
-            startTime = Date.now();
-            startTracking();
+            if (!intervalId) {
+                startTime = Date.now();
+                startTracking();
+            }
         }
 
         updateTrackingStatus();
