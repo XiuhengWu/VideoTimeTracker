@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!isPageFocused && !continueTrackingOnBlur) {
             stopTracking();
-        } else if (isTracking) {
+        } else if (isTracking && !continueTrackingOnBlur) {
             if (!intervalId) {
                 startTime = Date.now();
                 startTracking();
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('focus', function() {
         isPageFocused = true;
-        if (isTracking) {
+        if (isTracking && !continueTrackingOnBlur) {
             startTime = Date.now();
             startTracking();
         }
