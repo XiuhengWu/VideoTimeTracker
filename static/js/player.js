@@ -93,6 +93,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             const text = formattedParent.textContent;
                             const textNode = document.createTextNode(text);
                             formattedParent.parentNode.replaceChild(textNode, formattedParent);
+                            
+                            // Restore selection
+                            const range = new Range();
+                            range.selectNode(textNode);
+                            const selection = window.getSelection();
+                            selection.removeAllRanges();
+                            selection.addRange(range);
                             return;
                         }
                     }
