@@ -295,8 +295,8 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 const improvedText = parts[0].replace(/```/g, '').trim();
                 const additionalHint = parts[1].replace(/```/g, '').trim();
 
-                // Konvertiere Zeilenumbrüche in <br> Tags, aber normalisiere mehrfache Zeilenumbrüche
-                const formattedImprovedText = improvedText.replace(/\n{2,}/g, '\n').replace(/\n/g, '<br>');
+                // Konvertiere Zeilenumbrüche in <br> Tags
+                const formattedImprovedText = improvedText.replace(/\n/g, '<br>');
                 document.getElementById('improved-text').innerHTML = formattedImprovedText;
                 document.getElementById('additional-hint').innerHTML = additionalHint.replace(/\n{2,}/g, '\n').replace(/\n/g, '<br>');
 
