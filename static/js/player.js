@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const format = this.dataset.format;
             const editor = this.closest('.form-group').querySelector('.markdown-editor');
-            
+
             if (editor) {
                 if (editor.tagName === 'TEXTAREA') {
                     // Handle textarea formatting
@@ -42,9 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const end = editor.selectionEnd;
                     const text = editor.value;
                     const selectedText = text.substring(start, end);
-                    
+
                     if (!selectedText) return;
-                    
+
                     // Check if text is already formatted
                     let isFormatted = false;
                     let newText = selectedText;
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             newText = isFormatted ? selectedText.slice(1, -1) : `\`${selectedText}\``;
                             break;
                     }
-                    
+
                     editor.value = text.substring(0, start) + newText + text.substring(end);
                     editor.focus();
                 } else {
@@ -74,11 +74,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     const selection = window.getSelection();
                     const range = selection.getRangeAt(0);
                     const selectedNode = range.commonAncestorContainer;
-                    
+
                     // Check if already formatted
                     const formattedParent = selectedNode.nodeType === 3 ? 
                         selectedNode.parentElement : selectedNode;
-                    
+
                     if (formattedParent && formattedParent !== editor) {
                         const tag = formattedParent.tagName.toLowerCase();
                         const isMatchingFormat = 
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             (format === 'italic' && tag === 'em') ||
                             (format === 'highlight' && tag === 'mark') ||
                             (format === 'code' && tag === 'code');
-                            
+
                         if (isMatchingFormat) {
                             // Remove formatting
                             const text = formattedParent.textContent;
@@ -95,9 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             return;
                         }
                     }
-                    
+
                     // Apply new formatting
                     applyMarkdownFormat(editor, format);
+
+                    // Restore selection
+                    const range = new Range();
+                    range.selectNodeContents(wrapper);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
                 }
             }
         });
