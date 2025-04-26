@@ -340,19 +340,37 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label for="prompt-text">Prompt</label>
-                                <textarea id="prompt-text" class="form-control" rows="3"></textarea>
+                                <div class="formatting-buttons mb-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-format="bold"><i class="material-icons">format_bold</i></button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-format="italic"><i class="material-icons">format_italic</i></button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-format="highlight"><i class="material-icons">highlight</i></button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-format="code"><i class="material-icons">code</i></button>
+                                </div>
+                                <textarea id="prompt-text" class="form-control markdown-editor" rows="3"></textarea>
                             </div>
                             <div class="audio-transcription-row">
                                 <div>
                                     <div class="form-group mb-3">
                                         <label for="transcription-text">Transkription</label>
-                                        <div id="transcription-text" class="form-control text-content" contenteditable="true"></div>
+                                        <div class="formatting-buttons mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="bold"><i class="material-icons">format_bold</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="italic"><i class="material-icons">format_italic</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="highlight"><i class="material-icons">highlight</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="code"><i class="material-icons">code</i></button>
+                                        </div>
+                                        <div id="transcription-text" class="form-control text-content markdown-editor" contenteditable="true"></div>
                                     </div>
                                 </div>
                                 <div>
                                     <div class="form-group mb-3">
                                         <label for="improved-text">Verbesserter Text</label>
-                                        <div id="improved-text" class="form-control text-content" contenteditable="true"></div>
+                                        <div class="formatting-buttons mb-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="bold"><i class="material-icons">format_bold</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="italic"><i class="material-icons">format_italic</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="highlight"><i class="material-icons">highlight</i></button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-format="code"><i class="material-icons">code</i></button>
+                                        </div>
+                                        <div id="improved-text" class="form-control text-content markdown-editor" contenteditable="true"></div>
                                     </div>
                                 </div>
                             </div>

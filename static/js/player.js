@@ -1,7 +1,75 @@
 /**
  * Player module for handling video playback, subtitle navigation and timestamp marking
  */
+function applyMarkdownFormat(editor, format) {
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const selectedText = range.toString();
+
+    if (!selectedText) return;
+
+    let wrapper;
+    switch (format) {
+        case 'bold':
+            wrapper = document.createElement('strong');
+            break;
+        case 'italic':
+            wrapper = document.createElement('em');
+            break;
+        case 'highlight':
+            wrapper = document.createElement('mark');
+            break;
+        case 'code':
+            wrapper = document.createElement('code');
+            break;
+    }
+
+    range.surroundContents(wrapper);
+    selection.removeAllRanges();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Add formatting button handlers
+    document.querySelectorAll('.formatting-buttons button').forEach(button => {
+        button.addEventListener('click', function() {
+            const format = this.dataset.format;
+            const editor = this.closest('.form-group').querySelector('.markdown-editor');
+            
+            if (editor) {
+                if (editor.tagName === 'TEXTAREA') {
+                    // Handle textarea formatting
+                    const start = editor.selectionStart;
+                    const end = editor.selectionEnd;
+                    const text = editor.value;
+                    const selectedText = text.substring(start, end);
+                    
+                    if (!selectedText) return;
+                    
+                    let formattedText;
+                    switch (format) {
+                        case 'bold':
+                            formattedText = `**${selectedText}**`;
+                            break;
+                        case 'italic':
+                            formattedText = `*${selectedText}*`;
+                            break;
+                        case 'highlight':
+                            formattedText = `==${selectedText}==`;
+                            break;
+                        case 'code':
+                            formattedText = `\`${selectedText}\``;
+                            break;
+                    }
+                    
+                    editor.value = text.substring(0, start) + formattedText + text.substring(end);
+                    editor.focus();
+                } else {
+                    // Handle contenteditable formatting
+                    applyMarkdownFormat(editor, format);
+                }
+            }
+        });
+    });
     // Audio recording controls
     const toggleRecordingBtn = document.getElementById('toggle-recording');
     const pauseRecordingBtn = document.getElementById('pause-recording');

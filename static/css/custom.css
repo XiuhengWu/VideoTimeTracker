@@ -713,3 +713,33 @@
     padding: 0.75rem 1rem;
     border-radius: var(--card-border-radius);
 }
+
+.formatting-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.markdown-editor {
+    font-family: var(--bs-font-monospace);
+}
+
+.markdown-editor strong {
+    font-weight: bold;
+}
+
+.markdown-editor em {
+    font-style: italic;
+}
+
+.markdown-editor mark {
+    background-color: #ff0;
+    color: #000;
+    padding: 0 2px;
+}
+
+.markdown-editor code {
+    background-color: rgba(175, 184, 193, 0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+    font-family: var(--bs-font-monospace);
+}
