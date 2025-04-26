@@ -26,6 +26,7 @@ function applyMarkdownFormat(editor, format) {
 
     range.surroundContents(wrapper);
     selection.removeAllRanges();
+    return wrapper;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -97,14 +98,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     // Apply new formatting
-                    applyMarkdownFormat(editor, format);
+                    const wrapper = applyMarkdownFormat(editor, format);
 
-                    // Restore selection
-                    const range1 = new Range();
-                    range1.selectNodeContents(wrapper);
-                    const selection1 = window.getSelection();
-                    selection1.removeAllRanges();
-                    selection1.addRange(range1);
+                    // Restore selection if wrapper was created
+                    if (wrapper) {
+                        const range = new Range();
+                        range.selectNodeContents(wrapper);
+                        const selection = window.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
                 }
             }
         });
