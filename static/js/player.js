@@ -45,26 +45,58 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!selectedText) return;
                     
-                    let formattedText;
+                    // Check if text is already formatted
+                    let isFormatted = false;
+                    let newText = selectedText;
                     switch (format) {
                         case 'bold':
-                            formattedText = `**${selectedText}**`;
+                            isFormatted = selectedText.startsWith('**') && selectedText.endsWith('**');
+                            newText = isFormatted ? selectedText.slice(2, -2) : `**${selectedText}**`;
                             break;
                         case 'italic':
-                            formattedText = `*${selectedText}*`;
+                            isFormatted = selectedText.startsWith('*') && selectedText.endsWith('*');
+                            newText = isFormatted ? selectedText.slice(1, -1) : `*${selectedText}*`;
                             break;
                         case 'highlight':
-                            formattedText = `==${selectedText}==`;
+                            isFormatted = selectedText.startsWith('==') && selectedText.endsWith('==');
+                            newText = isFormatted ? selectedText.slice(2, -2) : `==${selectedText}==`;
                             break;
                         case 'code':
-                            formattedText = `\`${selectedText}\``;
+                            isFormatted = selectedText.startsWith('`') && selectedText.endsWith('`');
+                            newText = isFormatted ? selectedText.slice(1, -1) : `\`${selectedText}\``;
                             break;
                     }
                     
-                    editor.value = text.substring(0, start) + formattedText + text.substring(end);
+                    editor.value = text.substring(0, start) + newText + text.substring(end);
                     editor.focus();
                 } else {
                     // Handle contenteditable formatting
+                    const selection = window.getSelection();
+                    const range = selection.getRangeAt(0);
+                    const selectedNode = range.commonAncestorContainer;
+                    
+                    // Check if already formatted
+                    const formattedParent = selectedNode.nodeType === 3 ? 
+                        selectedNode.parentElement : selectedNode;
+                    
+                    if (formattedParent && formattedParent !== editor) {
+                        const tag = formattedParent.tagName.toLowerCase();
+                        const isMatchingFormat = 
+                            (format === 'bold' && tag === 'strong') ||
+                            (format === 'italic' && tag === 'em') ||
+                            (format === 'highlight' && tag === 'mark') ||
+                            (format === 'code' && tag === 'code');
+                            
+                        if (isMatchingFormat) {
+                            // Remove formatting
+                            const text = formattedParent.textContent;
+                            const textNode = document.createTextNode(text);
+                            formattedParent.parentNode.replaceChild(textNode, formattedParent);
+                            return;
+                        }
+                    }
+                    
+                    // Apply new formatting
                     applyMarkdownFormat(editor, format);
                 }
             }
