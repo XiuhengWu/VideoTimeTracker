@@ -72,17 +72,17 @@
                         <div class="mb-3">
                             <h6>Ursprüngliche Transkription:</h6>
                             <div class="text-content border rounded p-3" contenteditable="true" 
-                                 data-field="transcription" data-id="{{ entry.id }}">{{ entry.transcription }}</div>
+                                 data-field="transcription" data-id="{{ entry.id }}">{{ entry.transcription_html | safe if entry.transcription_html else entry.transcription }}</div>
                         </div>
                         <div class="mb-3">
                             <h6>Verbesserte Version:</h6>
                             <div class="text-content border rounded p-3" contenteditable="true"
-                                 data-field="improved" data-id="{{ entry.id }}">{{ entry.improved }}</div>
+                                 data-field="improved" data-id="{{ entry.id }}">{{ entry.improved_html | safe if entry.improved_html else entry.improved }}</div>
                         </div>
                         <div class="mb-3">
                             <h6>Hinweis:</h6>
                             <div class="text-content border rounded p-3" contenteditable="true"
-                                 data-field="hint" data-id="{{ entry.id }}">{{ entry.hint }}</div>
+                                 data-field="hint" data-id="{{ entry.id }}">{{ entry.hint_html | safe if entry.hint_html else entry.hint }}</div>
                         </div>
                         <button class="btn btn-primary save-changes" data-id="{{ entry.id }}">
                             <i class="material-icons align-middle">save</i> Änderungen speichern

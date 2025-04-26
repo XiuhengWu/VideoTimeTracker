@@ -172,7 +172,10 @@ def save_to_archive():
             'video_name': data.get('video_name', ''),
             'transcription': data.get('transcription', ''),
             'improved': data.get('improved', ''),
-            'hint': data.get('hint', '')
+            'hint': data.get('hint', ''),
+            'transcription_html': data.get('transcription_html', ''),
+            'improved_html': data.get('improved_html', ''),
+            'hint_html': data.get('hint_html', '')
         }
         
         archive_data.append(new_entry)

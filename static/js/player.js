@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const text = formattedParent.textContent;
                             const textNode = document.createTextNode(text);
                             formattedParent.parentNode.replaceChild(textNode, formattedParent);
-                            
+
                             // Restore selection
                             const range = new Range();
                             range.selectNode(textNode);
@@ -206,9 +206,9 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
     if (archiveBtn) {
         archiveBtn.addEventListener('click', function() {
             const videoName = document.getElementById('player').dataset.basename;
-            const transcription = document.getElementById('transcription-text').innerText;
-            const improved = document.getElementById('improved-text').innerText;
-            const hint = document.getElementById('additional-hint').innerText;
+            const transcriptionText = document.getElementById('transcription-text');
+            const improvedText = document.getElementById('improved-text');
+            const hintText = document.getElementById('additional-hint');
 
             fetch('/api/archive', {
                 method: 'POST',
@@ -216,10 +216,13 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    video_name: videoName,
-                    transcription: transcription,
-                    improved: improved,
-                    hint: hint
+                    'video_name': videoName,
+                    'transcription': transcriptionText.innerText,
+                    'improved': improvedText.innerText,
+                    'hint': hintText.innerText,
+                    'transcription_html': transcriptionText.innerHTML,
+                    'improved_html': improvedText.innerHTML,
+                    'hint_html': hintText.innerHTML
                 })
             })
             .then(response => response.json())
