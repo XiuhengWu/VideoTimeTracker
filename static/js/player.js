@@ -100,11 +100,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     applyMarkdownFormat(editor, format);
 
                     // Restore selection
-                    const range = new Range();
-                    range.selectNodeContents(wrapper);
-                    const selection = window.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
+                    const range1 = new Range();
+                    range1.selectNodeContents(wrapper);
+                    const selection1 = window.getSelection();
+                    selection1.removeAllRanges();
+                    selection1.addRange(range1);
                 }
             }
         });
