@@ -54,7 +54,37 @@
     </nav>
 
     <div class="container mt-5">
-        <h1>Transkriptionsarchiv</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Transkriptionsarchiv</h1>
+            <div>
+                <button id="show-marked-sentences" class="btn btn-primary me-2">
+                    <i class="material-icons align-middle">format_quote</i>
+                    Markierte Sätze anzeigen
+                </button>
+                <button id="copy-marked-sentences" class="btn btn-secondary">
+                    <i class="material-icons align-middle">content_copy</i>
+                    Sätze kopieren
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal for marked sentences -->
+        <div class="modal fade" id="markedSentencesModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Markierte Sätze</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="marked-prompt mb-3 border-bottom pb-3">
+                            <pre class="prompt-text" style="white-space: pre-wrap;"></pre>
+                        </div>
+                        <div class="marked-sentences"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             {% for entry in entries %}
             <div class="col-12 mb-4">
@@ -111,6 +141,31 @@
     
     <!-- Custom JS -->
     <script>
+        const PROMPT_TEXT = `Ich möchte deutsche Sätze auswendig lernen, die sehr natürlich und flüssig klingen.  
+Deine Aufgabe ist es, für jeden Satz die wichtigsten Stichwörter sowie eine passende Emoji-Geschichte zu erstellen.  
+**Beachte dabei:**
+- In der Emoji-Geschichte dürfen **nur Emojis** vorkommen, keine Wörter (zum Beispiel: 🏃‍♂️😄🪜⬇️ ist korrekt, aber "Dann 🏃‍♂️😄 🪜 hinunter." ist falsch).
+- Die Ausgabe für jeden Satz soll folgendermaßen aufgebaut sein:
+  \`\`\`
+  Stichwort~1~ + Stichwort~2~ + Stichwort~3~ + ... + Stichwörter~n~<br>Emoji-Geschichte\tOriginalsatz
+  \`\`\`
+  (Dabei steht \`\\t\` für ein echtes Tabulatorzeichen, \`<br>\` bleibt als reiner Text stehen.)
+  
+- Die Anzahl der Stichwörter ist nicht festgelegt, sollte jedoch so gering wie möglich gehalten werden.
+
+**Beispiel:**
+Für den Satz  
+
+\`\`\`
+Dann läuft er lachend die Treppe hinunter.
+\`\`\`
+sollst du ausgeben:
+\`\`\`
+laufen + lachen + Treppe<br>🏃‍♂️😄🪜⬇️\tDann läuft er lachend die Treppe hinunter.
+\`\`\`
+
+Jetzt bearbeite folgende Sätze nach dieser Methode (Jede Zeile enthält einen unabhängigen Satz):`;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Speichern von Änderungen
             document.querySelectorAll('.save-changes').forEach(button => {
@@ -162,6 +217,47 @@
                             }
                         });
                     }
+                });
+            });
+
+            // Marked sentences functionality
+            const showMarkedSentencesBtn = document.getElementById('show-marked-sentences');
+            const copyMarkedSentencesBtn = document.getElementById('copy-marked-sentences');
+            const markedSentencesModal = new bootstrap.Modal(document.getElementById('markedSentencesModal'));
+            
+            function getMarkedSentences() {
+                const markedSentences = [];
+                document.querySelectorAll('.text-content mark').forEach(mark => {
+                    const sentence = mark.textContent.trim();
+                    if (sentence && !markedSentences.includes(sentence)) {
+                        markedSentences.push(sentence);
+                    }
+                });
+                return markedSentences;
+            }
+
+            showMarkedSentencesBtn.addEventListener('click', function() {
+                const markedSentences = getMarkedSentences();
+                const modalBody = document.querySelector('#markedSentencesModal .marked-sentences');
+                const promptText = document.querySelector('#markedSentencesModal .prompt-text');
+                
+                promptText.textContent = PROMPT_TEXT;
+                modalBody.innerHTML = markedSentences.join('\n');
+                
+                markedSentencesModal.show();
+            });
+
+            copyMarkedSentencesBtn.addEventListener('click', function() {
+                const markedSentences = getMarkedSentences();
+                const textToCopy = PROMPT_TEXT + '\n\n' + markedSentences.join('\n');
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Visual feedback
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="material-icons align-middle">check</i> Kopiert';
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
                 });
             });
         });
