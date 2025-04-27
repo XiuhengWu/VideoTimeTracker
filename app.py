@@ -170,9 +170,6 @@ def save_to_archive():
             'id': len(archive_data),
             'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'video_name': data.get('video_name', ''),
-            'transcription': data.get('transcription', ''),
-            'improved': data.get('improved', ''),
-            'hint': data.get('hint', ''),
             'transcription_html': data.get('transcription_html', ''),
             'improved_html': data.get('improved_html', ''),
             'hint_html': data.get('hint_html', '')
@@ -194,9 +191,9 @@ def update_archive():
         
         for entry in archive_data:
             if str(entry['id']) == str(data['id']):
-                entry['transcription'] = data['transcription']
-                entry['improved'] = data['improved']
-                entry['hint'] = data['hint']
+                entry['transcription_html'] = data['transcription_html']
+                entry['improved_html'] = data['improved_html']
+                entry['hint_html'] = data['hint_html']
                 break
                 
         save_archive(archive_data)
