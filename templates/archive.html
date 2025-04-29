@@ -295,6 +295,8 @@ Ausgabe:
                 if (marks.length > 0) {
                     const lastMark = marks[marks.length - 1];
                     lastMark.textContent = document.getElementById('last-marked-edit').value;
+                    lastMarkedSentence = lastMark.textContent;
+                    localStorage.setItem('lastMarkedSentence', lastMarkedSentence);
                     lastMarkedModal.hide();
                 }
             });
