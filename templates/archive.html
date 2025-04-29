@@ -276,11 +276,15 @@ Ausgabe:
             editLastMarkedBtn.innerHTML = '<i class="material-icons align-middle">edit</i> Letzten Satz bearbeiten';
             showMarkedSentencesBtn.parentNode.insertBefore(editLastMarkedBtn, copyMarkedSentencesBtn);
 
+            // Store last marked sentence globally
+            let lastMarkedSentence = '';
+
             editLastMarkedBtn.addEventListener('click', function() {
                 const marks = document.querySelectorAll('.text-content mark');
                 if (marks.length > 0) {
                     const lastMark = marks[marks.length - 1];
-                    document.getElementById('last-marked-edit').value = lastMark.textContent;
+                    lastMarkedSentence = lastMark.textContent;
+                    document.getElementById('last-marked-edit').value = lastMarkedSentence;
                     lastMarkedModal.show();
                 }
             });
