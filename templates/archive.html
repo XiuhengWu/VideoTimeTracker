@@ -285,6 +285,7 @@ Ausgabe:
                     const lastMark = marks[marks.length - 1];
                     lastMarkedSentence = lastMark.textContent;
                     localStorage.setItem('lastMarkedSentence', lastMarkedSentence);
+                    console.log('Last marked sentence:', lastMarkedSentence);
                     document.getElementById('last-marked-edit').value = lastMarkedSentence;
                     lastMarkedModal.show();
                 }
