@@ -78,7 +78,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="marked-prompt mb-3 border-bottom pb-3">
-                            <pre class="prompt-text" style="white-space: pre-wrap;"></pre>
+                            <textarea class="prompt-text form-control" style="min-height: 200px;"></textarea>
                         </div>
                         <div class="marked-sentences"></div>
                     </div>
@@ -241,8 +241,9 @@ Jetzt bearbeite folgende Sätze nach dieser Methode (Jede Zeile enthält einen u
                 const modalBody = document.querySelector('#markedSentencesModal .marked-sentences');
                 const promptText = document.querySelector('#markedSentencesModal .prompt-text');
                 
-                promptText.textContent = PROMPT_TEXT;
-                modalBody.innerHTML = markedSentences.join('\n');
+                promptText.value = PROMPT_TEXT;
+                modalBody.innerHTML = markedSentences.join('<br>');
+                modalBody.style.whiteSpace = 'pre-wrap';
                 
                 markedSentencesModal.show();
             });
