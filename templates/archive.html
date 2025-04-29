@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="{{ session.get('theme', 'dark') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transkriptionsarchiv</title>
-    
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    
+
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 </head>
@@ -67,7 +66,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Modal for marked sentences -->
         <div class="modal fade" id="markedSentencesModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
@@ -130,15 +129,35 @@
         </div>
     </div>
 
+    <!-- Modal for managing last marked sentence -->
+    <div class="modal fade" id="lastMarkedModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Letzten markierten Satz verwalten</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Letzter markierter Satz:</label>
+                        <textarea id="last-marked-edit" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button id="update-last-marked" class="btn btn-primary me-2">Aktualisieren</button>
+                    <button id="delete-last-marked" class="btn btn-danger">Löschen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="mt-5 py-3">
         <div class="container text-center">
             <p class="text-muted mb-0">Videobibliothek mit Nutzungsverfolgung</p>
         </div>
     </footer>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JS -->
     <script>
         const PROMPT_TEXT = `**Ziel:**  
@@ -226,7 +245,7 @@ Ausgabe:
             const showMarkedSentencesBtn = document.getElementById('show-marked-sentences');
             const copyMarkedSentencesBtn = document.getElementById('copy-marked-sentences');
             const markedSentencesModal = new bootstrap.Modal(document.getElementById('markedSentencesModal'));
-            
+
             function getMarkedSentences() {
                 const markedSentences = [];
                 document.querySelectorAll('.text-content mark').forEach(mark => {
@@ -242,18 +261,18 @@ Ausgabe:
                 const markedSentences = getMarkedSentences();
                 const modalBody = document.querySelector('#markedSentencesModal .marked-sentences');
                 const promptText = document.querySelector('#markedSentencesModal .prompt-text');
-                
+
                 promptText.value = PROMPT_TEXT;
                 modalBody.innerHTML = markedSentences.join('<br>');
                 modalBody.style.whiteSpace = 'pre-wrap';
-                
+
                 markedSentencesModal.show();
             });
 
             copyMarkedSentencesBtn.addEventListener('click', function() {
                 const markedSentences = getMarkedSentences();
                 const textToCopy = PROMPT_TEXT + '\n\n' + markedSentences.join('\n');
-                
+
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     // Visual feedback
                     const originalText = this.innerHTML;
