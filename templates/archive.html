@@ -269,6 +269,40 @@ Ausgabe:
                 markedSentencesModal.show();
             });
 
+            // Last marked sentence modal
+            const lastMarkedModal = new bootstrap.Modal(document.getElementById('lastMarkedModal'));
+            const editLastMarkedBtn = document.createElement('button');
+            editLastMarkedBtn.className = 'btn btn-secondary me-2';
+            editLastMarkedBtn.innerHTML = '<i class="material-icons align-middle">edit</i> Letzten Satz bearbeiten';
+            showMarkedSentencesBtn.parentNode.insertBefore(editLastMarkedBtn, copyMarkedSentencesBtn);
+
+            editLastMarkedBtn.addEventListener('click', function() {
+                const marks = document.querySelectorAll('.text-content mark');
+                if (marks.length > 0) {
+                    const lastMark = marks[marks.length - 1];
+                    document.getElementById('last-marked-edit').value = lastMark.textContent;
+                    lastMarkedModal.show();
+                }
+            });
+
+            document.getElementById('update-last-marked').addEventListener('click', function() {
+                const marks = document.querySelectorAll('.text-content mark');
+                if (marks.length > 0) {
+                    const lastMark = marks[marks.length - 1];
+                    lastMark.textContent = document.getElementById('last-marked-edit').value;
+                    lastMarkedModal.hide();
+                }
+            });
+
+            document.getElementById('delete-last-marked').addEventListener('click', function() {
+                const marks = document.querySelectorAll('.text-content mark');
+                if (marks.length > 0) {
+                    const lastMark = marks[marks.length - 1];
+                    lastMark.outerHTML = lastMark.textContent;
+                    lastMarkedModal.hide();
+                }
+            });
+
             copyMarkedSentencesBtn.addEventListener('click', function() {
                 const markedSentences = getMarkedSentences();
                 const textToCopy = PROMPT_TEXT + '\n\n' + markedSentences.join('\n');
