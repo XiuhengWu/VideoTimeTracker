@@ -141,30 +141,32 @@
     
     <!-- Custom JS -->
     <script>
-        const PROMPT_TEXT = `Ich möchte deutsche Sätze auswendig lernen, die sehr natürlich und flüssig klingen.  
-Deine Aufgabe ist es, für jeden Satz die wichtigsten Stichwörter sowie eine passende Emoji-Geschichte zu erstellen.  
-**Beachte dabei:**
-- In der Emoji-Geschichte dürfen **nur Emojis** vorkommen, keine Wörter (zum Beispiel: 🏃‍♂️😄🪜⬇️ ist korrekt, aber "Dann 🏃‍♂️😄 🪜 hinunter." ist falsch).
-- Die Ausgabe für jeden Satz soll folgendermaßen aufgebaut sein:
+        const PROMPT_TEXT = `**Ziel:**  
+Ich möchte mir deutsche Sätze einprägen, die besonders natürlich und flüssig klingen.
+
+**Deine Aufgabe:**  
+Erstelle zu jedem dieser Sätze eine passende Emoji-Geschichte, die dabei hilft, den Satz leichter zu merken und sich bildhaft vorzustellen.
+
+**Beachte dabei bitte folgende Regeln:**  
+- Wenn ein Begriff schwer oder gar nicht durch Emojis darstellbar ist, darfst du kurze Stichwörter in die Emoji-Geschichte einbauen. Diese Wörter sollen jedoch sparsam eingesetzt werden und dürfen nicht wörtlich aus dem Originalsatz stammen.  
+  *(Beispiel: „Wie sieht Jonas das Ganze?“ → 👁️Jonas Perspektive❓)*  
+- Die Ausgabe für jeden Satz soll exakt dieses Format haben:  
   \`\`\`
-  Stichwort~1~ + Stichwort~2~ + Stichwort~3~ + ... + Stichwörter~n~<br>Emoji-Geschichte\tOriginalsatz
-  \`\`\`
-  (Dabei steht \`\\t\` für ein echtes Tabulatorzeichen, \`<br>\` bleibt als reiner Text stehen.)
-  
-- Die Anzahl der Stichwörter ist nicht festgelegt, sollte jedoch so gering wie möglich gehalten werden.
+  Emoji-Geschichte\tOriginalsatz
+  \`\`\`  
+  (\`\t\` steht für ein echtes Tabulatorzeichen)
 
-**Beispiel:**
-Für den Satz  
-
+**Beispiel:**  
+Eingabe:  
 \`\`\`
-Dann läuft er lachend die Treppe hinunter.
+Wie sieht Jonas das Ganze
+\`\`\`  
+Ausgabe:  
 \`\`\`
-sollst du ausgeben:
-\`\`\`
-laufen + lachen + Treppe<br>🏃‍♂️😄🪜⬇️\tDann läuft er lachend die Treppe hinunter.
+👁️Jonas Perspektive❓	Wie sieht Jonas das Ganze
 \`\`\`
 
-Jetzt bearbeite folgende Sätze nach dieser Methode (Jede Zeile enthält einen unabhängigen Satz):`;
+**Jetzt bearbeite bitte die folgenden Sätze. Jeder Satz steht in einer eigenen Zeile:**`;
 
         document.addEventListener('DOMContentLoaded', function() {
             // Speichern von Änderungen
