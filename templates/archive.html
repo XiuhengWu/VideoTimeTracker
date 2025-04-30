@@ -56,13 +56,9 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Transkriptionsarchiv</h1>
             <div>
-                <button id="show-marked-sentences" class="btn btn-primary me-2">
+                <button id="show-marked-sentences" class="btn btn-primary">
                     <i class="material-icons align-middle">format_quote</i>
                     Markierte Sätze anzeigen
-                </button>
-                <button id="copy-marked-sentences" class="btn btn-secondary">
-                    <i class="material-icons align-middle">content_copy</i>
-                    Sätze kopieren
                 </button>
             </div>
         </div>
@@ -76,6 +72,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
+                        <div class="d-flex justify-content-end mb-3">
+                            <button id="edit-last-marked" class="btn btn-secondary me-2">
+                                <i class="material-icons align-middle">edit</i>
+                                Letzten Satz bearbeiten
+                            </button>
+                            <button id="copy-marked-sentences" class="btn btn-primary">
+                                <i class="material-icons align-middle">content_copy</i>
+                                Sätze kopieren
+                            </button>
+                        </div>
                         <div class="marked-prompt mb-3 border-bottom pb-3">
                             <textarea class="prompt-text form-control" style="min-height: 200px;"></textarea>
                         </div>
