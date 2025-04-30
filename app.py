@@ -50,7 +50,6 @@ class AudioRecorder:
         self.whisper_model = whisper.load_model("turbo", device="cpu")
         self.lock = threading.Lock()
         self.recording_thread = None
-        self.transcription_progress = 0
 
     def start_recording(self):
         if not self.is_recording:
@@ -110,9 +109,6 @@ class AudioRecorder:
             return {"transcription": transcription, "audio_path": "/static/temp_audio.wav"}
         return {"transcription": "", "audio_path": ""}
 
-    def progress_callback(self, progress):
-        self.transcription_progress = progress[0] / progress[1] * 100
-
     def transcribe_audio(self):
         if not self.frames:
             return ""
@@ -123,12 +119,9 @@ class AudioRecorder:
                 audio_data = np.frombuffer(b''.join(self.frames),
                                            dtype=np.float32)
 
-                # Transcribe using Whisper with progress callback
-                result = self.whisper_model.transcribe(
-                    audio_data,
-                    language="de",
-                    progress_callback=self.progress_callback
-                )
+                # Transcribe using Whisper
+                result = self.whisper_model.transcribe(audio_data,
+                                                       language="de")
                 print(result)
                 return result["text"].strip()
             except Exception as e:
@@ -472,18 +465,10 @@ def stop_audio():
         return jsonify({
             'success': True, 
             'transcription': result['transcription'],
-            'audio_path': result['audio_path'],
-            'progress': audio_recorder.transcription_progress
+            'audio_path': result['audio_path']
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
-@app.route('/api/audio/progress')
-def get_progress():
-    """Get transcription progress"""
-    return jsonify({
-        'progress': audio_recorder.transcription_progress
-    })
 
 
 @app.route('/toggle_theme')
