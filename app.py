@@ -33,10 +33,10 @@ def load_last_directory():
 
 
 # Audio recording configuration
-CHUNK = 1024
-FORMAT = pyaudio.paFloat32
+CHUNK = 2048
+FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 16000
+RATE = 44100
 
 
 class AudioRecorder:
