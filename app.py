@@ -103,9 +103,11 @@ class AudioRecorder:
                 wf.setframerate(RATE)
                 wf.writeframes(b''.join(self.frames))
 
-            # Perform transcription
+            # Save audio first
+            self.frames = []  # Clear frames after saving
+            
+            # Perform transcription after saving
             transcription = self.transcribe_audio()
-            self.frames = []  # Clear frames
             return {"transcription": transcription, "audio_path": "/static/temp_audio.wav"}
         return {"transcription": "", "audio_path": ""}
 
@@ -115,14 +117,10 @@ class AudioRecorder:
 
         with self.lock:
             try:
-                # Convert frames to numpy array
-                audio_data = np.frombuffer(b''.join(self.frames),
-                                           dtype=np.float32)
-
-                # Transcribe using Whisper
-                result = self.whisper_model.transcribe(audio_data,
-                                                       language="de",
-                                                       verbose=False)
+                # Read the saved WAV file
+                result = self.whisper_model.transcribe("static/temp_audio.wav",
+                                                     language="de",
+                                                     verbose=False)
                 print(result)
                 return result["text"].strip()
             except Exception as e:
