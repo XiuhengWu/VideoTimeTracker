@@ -95,11 +95,19 @@ class AudioRecorder:
             if self.recording_thread:
                 self.recording_thread.join()
 
+            # Save audio to temporary file
+            temp_path = "static/temp_audio.wav"
+            with wave.open(temp_path, 'wb') as wf:
+                wf.setnchannels(CHANNELS)
+                wf.setsampwidth(self.audio.get_sample_size(FORMAT))
+                wf.setframerate(RATE)
+                wf.writeframes(b''.join(self.frames))
+
             # Perform transcription
             transcription = self.transcribe_audio()
             self.frames = []  # Clear frames
-            return transcription
-        return ""
+            return {"transcription": transcription, "audio_path": "/static/temp_audio.wav"}
+        return {"transcription": "", "audio_path": ""}
 
     def transcribe_audio(self):
         if not self.frames:
@@ -453,8 +461,12 @@ def resume_audio():
 def stop_audio():
     """Stop audio recording and get final transcription"""
     try:
-        transcription = audio_recorder.stop_recording()
-        return jsonify({'success': True, 'transcription': transcription})
+        result = audio_recorder.stop_recording()
+        return jsonify({
+            'success': True, 
+            'transcription': result['transcription'],
+            'audio_path': result['audio_path']
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 

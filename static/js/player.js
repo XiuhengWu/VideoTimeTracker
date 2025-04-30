@@ -438,8 +438,15 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 fetch('/api/audio/stop', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success && data.transcription) {
-                            transcriptionText.innerText = data.transcription;
+                        if (data.success) {
+                            if (data.transcription) {
+                                transcriptionText.innerText = data.transcription;
+                            }
+                            if (data.audio_path) {
+                                const audioPlayer = document.getElementById('recorded-audio');
+                                audioPlayer.src = data.audio_path + '?t=' + new Date().getTime();
+                                audioPlayer.style.display = 'block';
+                            }
                         }
                         isRecording = false;
                         isPaused = false;
