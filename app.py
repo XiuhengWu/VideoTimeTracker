@@ -112,7 +112,7 @@ class AudioRecorder:
         return {"transcription": "", "audio_path": ""}
 
     def transcribe_audio(self):
-        if not self.frames:
+        if not os.path.exists("static/temp_audio.wav"):
             return ""
 
         with self.lock:
