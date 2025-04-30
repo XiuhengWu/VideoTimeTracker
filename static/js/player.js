@@ -30,6 +30,99 @@ function applyMarkdownFormat(editor, format) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Create floating format buttons
+    const floatingButtons = document.createElement('div');
+    floatingButtons.className = 'floating-format-buttons';
+    floatingButtons.innerHTML = `
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-format="bold">
+            <i class="material-icons">format_bold</i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-format="italic">
+            <i class="material-icons">format_italic</i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-format="highlight">
+            <i class="material-icons">highlight</i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-format="code">
+            <i class="material-icons">code</i>
+        </button>
+    `;
+    document.body.appendChild(floatingButtons);
+
+    // Handle text selection in markdown editors
+    document.querySelectorAll('.markdown-editor').forEach(editor => {
+        editor.addEventListener('mouseup', function(e) {
+            const selection = window.getSelection();
+            if (selection.toString().trim()) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                floatingButtons.style.display = 'flex';
+                floatingButtons.style.top = `${rect.top - floatingButtons.offsetHeight - 5 + window.scrollY}px`;
+                floatingButtons.style.left = `${rect.left + (rect.width - floatingButtons.offsetWidth) / 2 + window.scrollX}px`;
+            } else {
+                floatingButtons.style.display = 'none';
+            }
+        });
+    });
+
+    // Hide floating buttons when clicking outside
+    document.addEventListener('mousedown', function(e) {
+        if (!floatingButtons.contains(e.target) && !e.target.closest('.markdown-editor')) {
+            floatingButtons.style.display = 'none';
+        }
+    });
+
+    // Add floating format button handlers
+    floatingButtons.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', function() {
+            const format = this.dataset.format;
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const editor = range.commonAncestorContainer.parentElement.closest('.markdown-editor');
+
+            if (editor) {
+                if (editor.tagName === 'TEXTAREA') {
+                    // Handle textarea formatting
+                    const start = editor.selectionStart;
+                    const end = editor.selectionEnd;
+                    const text = editor.value;
+                    const selectedText = text.substring(start, end);
+
+                    if (!selectedText) return;
+
+                    let isFormatted = false;
+                    let newText = selectedText;
+                    switch (format) {
+                        case 'bold':
+                            isFormatted = selectedText.startsWith('**') && selectedText.endsWith('**');
+                            newText = isFormatted ? selectedText.slice(2, -2) : `**${selectedText}**`;
+                            break;
+                        case 'italic':
+                            isFormatted = selectedText.startsWith('*') && selectedText.endsWith('*');
+                            newText = isFormatted ? selectedText.slice(1, -1) : `*${selectedText}*`;
+                            break;
+                        case 'highlight':
+                            isFormatted = selectedText.startsWith('==') && selectedText.endsWith('==');
+                            newText = isFormatted ? selectedText.slice(2, -2) : `==${selectedText}==`;
+                            break;
+                        case 'code':
+                            isFormatted = selectedText.startsWith('`') && selectedText.endsWith('`');
+                            newText = isFormatted ? selectedText.slice(1, -1) : `\`${selectedText}\``;
+                            break;
+                    }
+
+                    editor.value = text.substring(0, start) + newText + text.substring(end);
+                    editor.focus();
+                } else {
+                    // Handle contenteditable formatting
+                    applyMarkdownFormat(editor, format);
+                }
+                floatingButtons.style.display = 'none';
+            }
+        });
+    });
+
     // Add formatting button handlers
     document.querySelectorAll('.formatting-buttons button').forEach(button => {
         button.addEventListener('click', function() {

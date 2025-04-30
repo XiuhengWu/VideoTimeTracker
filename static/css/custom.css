@@ -719,6 +719,31 @@
     gap: 5px;
 }
 
+.floating-format-buttons {
+    position: absolute;
+    display: none;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.floating-format-buttons button {
+    padding: 4px;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.markdown-editor {
+    position: relative;
+}
+
 .markdown-editor {
     font-family: var(--bs-font-monospace);
 }
