@@ -80,6 +80,7 @@
                                     </div>
                                     <div class="card-body">
                                         <textarea id="last-marked-edit" class="form-control mb-3" rows="3"></textarea>
+                                        <p style="color: gray;font-style: italic;">Wenn Sie die Eingabefeld leer lassen, wird automatisch der letzte markierte Satz erkennt.</p>
                                         <div class="d-flex">
                                             <button id="update-last-marked" class="btn btn-primary me-2">
                                                 <i class="material-icons align-middle">save</i>
@@ -264,6 +265,8 @@ Ausgabe:
             const showMarkedSentencesBtn = document.getElementById('show-marked-sentences');
             const copyMarkedSentencesBtn = document.getElementById('copy-marked-sentences');
             const markedSentencesModal = new bootstrap.Modal(document.getElementById('markedSentencesModal'));
+            const lastmarkedEdit = document.getElementById('last-marked-edit');
+            lastmarkedEdit.value = localStorage.getItem('lastMarkedSentence') || '';
 
             function getMarkedSentences() {
                 const markedSentences = [];
@@ -296,43 +299,24 @@ Ausgabe:
                 markedSentencesModal.show();
             });
 
-            // Last marked sentence modal
-            const lastMarkedModal = new bootstrap.Modal(document.getElementById('lastMarkedModal'));
-            const editLastMarkedBtn = document.createElement('button');
-            editLastMarkedBtn.className = 'btn btn-secondary me-2';
-            editLastMarkedBtn.innerHTML = '<i class="material-icons align-middle">edit</i> Letzten Satz bearbeiten';
-            showMarkedSentencesBtn.parentNode.insertBefore(editLastMarkedBtn, copyMarkedSentencesBtn);
-
-            // Get last marked sentence from localStorage or empty string
-            let lastMarkedSentence = localStorage.getItem('lastMarkedSentence') || '';
-
-            editLastMarkedBtn.addEventListener('click', function() {
-                const marks = document.querySelectorAll('.text-content mark');
-                if (marks.length > 0) {
-                    const lastMark = marks[marks.length - 1];
-                    document.getElementById('last-marked-edit').value = lastMarkedSentence;
-                    lastMarkedModal.show();
-                }
-            });
-
             document.getElementById('update-last-marked').addEventListener('click', function() {
-                const marks = document.querySelectorAll('.text-content mark');
-                if (marks.length > 0) {
-                    const lastMark = marks[marks.length - 1];
-                    // lastMark.textContent = document.getElementById('last-marked-edit').value;
-                    lastMarkedSentence = lastMark.textContent;
-                    localStorage.setItem('lastMarkedSentence', lastMarkedSentence);
-                    lastMarkedModal.hide();
+                if (lastmarkedEdit.value.trim() === '') {
+                    const allMarkedSentences = getMarkedSentences();
+                    if (allMarkedSentences.length > 0) {
+                        const lastMark = allMarkedSentences[allMarkedSentences.length - 1];
+                        const lastMarkedSentence = lastMark;
+                        lastmarkedEdit.value = lastMarkedSentence;
+                        localStorage.setItem('lastMarkedSentence', lastMarkedSentence);
+                    }
+                    
+                } else {
+                    localStorage.setItem('lastMarkedSentence', lastmarkedEdit.value.trim());
                 }
             });
 
             document.getElementById('delete-last-marked').addEventListener('click', function() {
-                const marks = document.querySelectorAll('.text-content mark');
-                if (marks.length > 0) {
-                    const lastMark = marks[marks.length - 1];
-                    lastMark.outerHTML = lastMark.textContent;
-                    lastMarkedModal.hide();
-                }
+                localStorage.removeItem('lastMarkedSentence');
+                lastmarkedEdit.value = '';
             });
 
             copyMarkedSentencesBtn.addEventListener('click', function() {
