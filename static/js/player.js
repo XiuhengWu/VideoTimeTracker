@@ -439,13 +439,19 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            if (data.transcription) {
-                                transcriptionText.innerText = data.transcription;
-                            }
                             if (data.audio_path) {
                                 const audioPlayer = document.getElementById('recorded-audio');
                                 audioPlayer.src = data.audio_path + '?t=' + new Date().getTime();
                                 audioPlayer.style.display = 'block';
+                                
+                                // Start transcription after showing audio
+                                fetch('/api/audio/transcribe', { method: 'POST' })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success && data.transcription) {
+                                            transcriptionText.innerText = data.transcription;
+                                        }
+                                    });
                             }
                         }
                         isRecording = false;

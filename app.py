@@ -103,12 +103,15 @@ class AudioRecorder:
                 wf.setframerate(RATE)
                 wf.writeframes(b''.join(self.frames))
 
-            # Save audio first
+            # Return audio path immediately
             self.frames = []  # Clear frames after saving
             
-            # Perform transcription after saving
-            transcription = self.transcribe_audio()
-            return {"transcription": transcription, "audio_path": "/static/temp_audio.wav"}
+            # Start transcription in background
+            def transcribe_later():
+                transcription = self.transcribe_audio()
+                return transcription
+            
+            return {"audio_path": "/static/temp_audio.wav"}
         return {"transcription": "", "audio_path": ""}
 
     def transcribe_audio(self):
@@ -455,6 +458,18 @@ def resume_audio():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+
+@app.route('/api/audio/transcribe', methods=['POST'])
+def transcribe_audio():
+    """Transcribe the recorded audio"""
+    try:
+        transcription = audio_recorder.transcribe_audio()
+        return jsonify({
+            'success': True,
+            'transcription': transcription
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/audio/stop', methods=['POST'])
 def stop_audio():
