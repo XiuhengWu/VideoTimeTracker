@@ -261,9 +261,17 @@ Ausgabe:
                 const markedSentences = getMarkedSentences();
                 const modalBody = document.querySelector('#markedSentencesModal .marked-sentences');
                 const promptText = document.querySelector('#markedSentencesModal .prompt-text');
+                const lastMarkedIndex = markedSentences.findIndex(s => s === localStorage.getItem('lastMarkedSentence'));
 
                 promptText.value = PROMPT_TEXT;
-                modalBody.innerHTML = markedSentences.join('<br>');
+                
+                if (lastMarkedIndex !== -1) {
+                    const beforeHr = markedSentences.slice(0, lastMarkedIndex + 1).join('<br>');
+                    const afterHr = markedSentences.slice(lastMarkedIndex + 1).join('<br>');
+                    modalBody.innerHTML = beforeHr + '<hr>' + afterHr;
+                } else {
+                    modalBody.innerHTML = markedSentences.join('<br>');
+                }
                 modalBody.style.whiteSpace = 'pre-wrap';
 
                 markedSentencesModal.show();
@@ -313,7 +321,9 @@ Ausgabe:
 
             copyMarkedSentencesBtn.addEventListener('click', function() {
                 const markedSentences = getMarkedSentences();
-                const textToCopy = PROMPT_TEXT + '\n\n' + markedSentences.join('\n');
+                const lastMarkedIndex = markedSentences.findIndex(s => s === localStorage.getItem('lastMarkedSentence'));
+                const sentencesToCopy = lastMarkedIndex !== -1 ? markedSentences.slice(lastMarkedIndex + 1) : markedSentences;
+                const textToCopy = PROMPT_TEXT + '\n\n' + sentencesToCopy.join('\n');
 
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     // Visual feedback
