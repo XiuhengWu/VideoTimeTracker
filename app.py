@@ -478,8 +478,7 @@ def stop_audio():
         result = audio_recorder.stop_recording()
         return jsonify({
             'success': True, 
-            'transcription': result['transcription'],
-            'audio_path': result['audio_path']
+            'audio_path': result.get('audio_path', '')
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
