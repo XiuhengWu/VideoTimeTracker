@@ -121,7 +121,8 @@ class AudioRecorder:
 
                 # Transcribe using Whisper
                 result = self.whisper_model.transcribe(audio_data,
-                                                       language="de")
+                                                       language="de",
+                                                       verbose=False)
                 print(result)
                 return result["text"].strip()
             except Exception as e:
@@ -659,4 +660,4 @@ def auto_correct():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=False)
