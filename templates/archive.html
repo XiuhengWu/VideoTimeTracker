@@ -72,18 +72,49 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="d-flex justify-content-end mb-3">
-                            <button id="edit-last-marked" class="btn btn-secondary me-2">
-                                <i class="material-icons align-middle">edit</i>
-                                Letzten Satz bearbeiten
-                            </button>
-                            <button id="copy-marked-sentences" class="btn btn-primary">
-                                <i class="material-icons align-middle">content_copy</i>
-                                Sätze kopieren
-                            </button>
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Letzter markierter Satz</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <textarea id="last-marked-edit" class="form-control mb-3" rows="3"></textarea>
+                                        <div class="d-flex">
+                                            <button id="update-last-marked" class="btn btn-primary me-2">
+                                                <i class="material-icons align-middle">save</i>
+                                                Aktualisieren
+                                            </button>
+                                            <button id="delete-last-marked" class="btn btn-danger">
+                                                <i class="material-icons align-middle">delete</i>
+                                                Löschen
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="marked-prompt mb-3 border-bottom pb-3">
-                            <textarea class="prompt-text form-control" style="min-height: 200px;"></textarea>
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Prompt Text</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <textarea class="prompt-text form-control" style="min-height: 200px;"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end">
+                                    <button id="copy-marked-sentences" class="btn btn-primary">
+                                        <i class="material-icons align-middle">content_copy</i>
+                                        Sätze kopieren
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="marked-sentences"></div>
                     </div>
@@ -135,25 +166,7 @@
         </div>
     </div>
 
-    <!-- Modal for managing last marked sentence -->
-    <div class="modal fade" id="lastMarkedModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Letzten markierten Satz verwalten</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Letzter markierter Satz:</label>
-                        <textarea id="last-marked-edit" class="form-control" rows="3"></textarea>
-                    </div>
-                    <button id="update-last-marked" class="btn btn-primary me-2">Aktualisieren</button>
-                    <button id="delete-last-marked" class="btn btn-danger">Löschen</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <footer class="mt-5 py-3">
         <div class="container text-center">
