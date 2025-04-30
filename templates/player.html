@@ -338,6 +338,10 @@
                                     </button>
                                 </div>
                             </div>
+                            <audio id="recorded-audio" class="w-100 mb-3" controls style="display: none">
+                                <source src="" type="audio/wav">
+                                Ihr Browser unterstützt das Audio-Element nicht.
+                            </audio>
                             <div class="form-group mb-3">
                                 <label for="prompt-text">Prompt</label>
                                 <div class="formatting-buttons mb-2">
@@ -352,10 +356,6 @@
                                 <div>
                                     <div class="form-group mb-3">
                                         <label for="transcription-text">Transkription</label>
-                                        <audio id="recorded-audio" class="w-100 mb-2" controls style="display: none">
-                                            <source src="" type="audio/wav">
-                                            Ihr Browser unterstützt das Audio-Element nicht.
-                                        </audio>
                                         <div class="formatting-buttons mb-2">
                                             <button type="button" class="btn btn-outline-secondary btn-sm" data-format="bold"><i class="material-icons">format_bold</i></button>
                                             <button type="button" class="btn btn-outline-secondary btn-sm" data-format="italic"><i class="material-icons">format_italic</i></button>
