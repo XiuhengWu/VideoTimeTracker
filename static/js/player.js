@@ -419,8 +419,8 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                             isRecording = true;
                             isPaused = false;
                             transcriptionText.innerText = ''; // Clear previous transcription
-                            improvedText.innerText = ''; // Clear previous improved text
-                            hintText.innerText = ''; // Clear previous hint text
+                            document.getElementById('improved-text').innerText = ''; // Clear previous improved text
+                            document.getElementById('additional-hint').innerText = ''; // Clear previous hint text
                             toggleRecordingBtn.innerHTML = '<i class="material-icons align-middle">stop</i> Aufnahme beenden';
                             toggleRecordingBtn.className = 'btn btn-danger';
                             pauseRecordingBtn.disabled = false;
