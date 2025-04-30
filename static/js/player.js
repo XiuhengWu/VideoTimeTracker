@@ -435,9 +435,32 @@ Außer diesen beiden Teilen sollst du nichts weiter sagen. Wenn es keinen zusät
                 toggleRecordingBtn.disabled = true;
                 pauseRecordingBtn.disabled = true;
 
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress mb-3';
+                progressBar.innerHTML = `
+                    <div class="progress-bar" role="progressbar" style="width: 0%" 
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                `;
+                transcriptionText.parentElement.insertBefore(progressBar, transcriptionText);
+
+                // Start progress polling
+                const progressInterval = setInterval(() => {
+                    fetch('/api/audio/progress')
+                        .then(response => response.json())
+                        .then(data => {
+                            const progressElement = progressBar.querySelector('.progress-bar');
+                            progressElement.style.width = data.progress + '%';
+                            progressElement.setAttribute('aria-valuenow', data.progress);
+                            progressElement.textContent = Math.round(data.progress) + '%';
+                        });
+                }, 100);
+
                 fetch('/api/audio/stop', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
+                        clearInterval(progressInterval);
+                        progressBar.remove();
+                        
                         if (data.success) {
                             if (data.transcription) {
                                 transcriptionText.innerText = data.transcription;
