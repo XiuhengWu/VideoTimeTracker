@@ -11,6 +11,7 @@ dependencies = [
     "googletrans==4.0.0rc1",
     "gunicorn>=23.0.0",
     "numpy>=2.2.5",
+    "openai>=0.28.1",
     "psycopg2-binary>=2.9.10",
     "pyaudio>=0.2.14",
     "werkzeug>=3.1.3",
