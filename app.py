@@ -684,11 +684,16 @@ Außer diesen beiden Teilen gib nichts weiter aus."""
 
         # Send prompt and get response
         chat_bot.send_prompt_to_chatgpt(prompt)
-        corrected_text = chat_bot.return_last_response()
+        response = chat_bot.return_last_response()
+        
+        # Split response into improved text and hint
+        parts = response.split('------')
+        improved_text = parts[0].strip()
+        hint = parts[1].strip() if len(parts) > 1 else "(kein zusätzlicher Hinweis)"
         
         return jsonify({
             'success': True,
-            'corrected_text': corrected_text
+            'corrected_text': f"{improved_text}\n\n------\n\n{hint}"
         })
     except Exception as e:
         logger.error(f"Auto-correction error: {e}")
