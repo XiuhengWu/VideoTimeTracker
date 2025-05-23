@@ -654,27 +654,23 @@ def explain_word():
 
 @app.route('/api/auto-correct', methods=['POST'])
 def auto_correct():
-    """Auto-correct the given text using OpenAI API"""
+    """Auto-correct the given text using ChatGPT browser automation"""
     try:
-        import openai
+        from chatgpt_automation.chatgpt_automation import ChatGPTAutomation
         
         data = request.get_json()
         transcription = data.get('transcription', '')
-        
-        # Get OpenAI API key from environment
-        openai.api_key = os.getenv('OPENAI_API_KEY')
-        if not openai.api_key:
-            return jsonify({'success': False, 'error': 'OpenAI API key not found'})
 
-        # Create system prompt
-        system_prompt = """Du bist ein Assistent für Deutschlerner. Deine Aufgabe ist es, mündliche Nacherzählungen zu korrigieren und zu verbessern. 
-        Die Verbesserung soll natürlich und flüssig klingen, aber auf dem Sprachniveau B2 (höchstens C1) bleiben.
-        Wenn es passt, verwende gängige Redewendungen oder idiomatische Ausdrücke.
-        Gib nur den verbesserten Text und einen zusätzlichen Hinweis aus."""
+        # Initialize ChatGPT automation
+        chat_bot = ChatGPTAutomation(
+            chrome_path="/usr/bin/chromium-browser",
+            chrome_driver_path="/nix/store/chrome-driver/chromedriver"
+        )
 
-        # Create user prompt from transcription
-        user_prompt = f"""Verbessere den folgenden Text stilistisch und grammatikalisch:
+        # Create prompt
+        prompt = f"""Du bist ein Assistent für Deutschlerner. Deine Aufgabe ist es, den folgenden Text stilistisch und grammatikalisch zu verbessern. Die Verbesserung soll natürlich und flüssig klingen, aber auf dem Sprachniveau B2 (höchstens C1) bleiben. Wenn es passt, verwende gängige Redewendungen oder idiomatische Ausdrücke.
 
+Text zur Verbesserung:
 {transcription}
 
 Formatiere die Ausgabe wie folgt:
@@ -686,18 +682,9 @@ Formatiere die Ausgabe wie folgt:
 
 Außer diesen beiden Teilen gib nichts weiter aus."""
 
-        # Send to ChatGPT
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.7
-        )
-
-        # Get response
-        corrected_text = response.choices[0].message.content.strip()
+        # Send prompt and get response
+        chat_bot.send_prompt_to_chatgpt(prompt)
+        corrected_text = chat_bot.return_last_response()
         
         return jsonify({
             'success': True,
