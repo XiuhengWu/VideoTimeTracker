@@ -663,8 +663,8 @@ def auto_correct():
 
         # Initialize ChatGPT automation
         chat_bot = ChatGPTAutomation(
-            chrome_path="/usr/bin/chromium-browser",
-            chrome_driver_path="/nix/store/chrome-driver/chromedriver"
+            chrome_path=r"C:\Applications\Portable\chrome-win64\chrome.exe",
+            chrome_driver_path=r"C:\UserData\Files\Favorites\Useful Tools\chromedriver-win64\chromedriver.exe"
         )
 
         # Create prompt
